@@ -3,6 +3,7 @@ import arcade
 from random import randrange
 import pathlib
 import json
+import math
 
 def eq(s, i, n):
     s[i] = n
@@ -27,7 +28,7 @@ def generate_sprite(t, x, y, s):
     a.scale = s
     return a
 
-ASSETS_PATH = pathlib.Path(__file__).resolve().parent.parent / "make_first_game"
+ASSETS_PATH = pathlib.Path(__file__).resolve().parent.parent / "trygame16"
 SCREEN_WIDTH = 700#576
 SCREEN_HEIGHT = SCREEN_WIDTH
 
@@ -667,6 +668,7 @@ class GameView(arcade.View):
                     if friend.properties["opponent"] == 0:
                         friend.properties["opponent"] = player_hit[0]
                 if "shot" in player_hit[0].properties["mods"].split() or "attack" in player_hit[0].properties["mods"].split():
+                    print(1)
                     self.kill_enemy(player_hit[0])
                 
                 if "trader" in player_hit[0].properties["mods"].split() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0:
@@ -851,7 +853,7 @@ class GameView(arcade.View):
 
                     if enemy.properties["movement"] == "jerker" and enemy.properties["sees_player"] and range_to_player != 0 and ((("effects" in enemy.properties.keys()) and ("stun" not in enemy.properties["effects"].keys())) or ("effects" not in enemy.properties.keys())):
                         if self.timer - enemy.properties["lastjerk"] > 1 and enemy.properties["range"] <= 0:
-                            enemy.properties["range"] = 150*self.scaling
+                            enemy.properties["range"] = 150*self.scaling + ("boss" in enemy.properties["mods"].split()) * 100 * self.scaling
                             enemy.change_x = left * abs(enemy.center_x - self.player_sprite.center_x) / (on_range(enemy.center_x, enemy.center_y, self.player_sprite.center_x, self.player_sprite.center_y) / (3*enemy.properties["movespeed"])) / 1.5 * self.scaling 
                             enemy.change_y = down * abs(enemy.center_y - self.player_sprite.center_y) / (on_range(enemy.center_x, enemy.center_y, self.player_sprite.center_x, self.player_sprite.center_y) / (3*enemy.properties["movespeed"])) / 1.5 * self.scaling
                             
@@ -963,7 +965,7 @@ class GameView(arcade.View):
                     if range_to_player != 0:
                         enemy.change_x = left * abs(enemy.center_x - enemy.properties["opponent"].center_x) / (range_to_player / enemy.properties["movespeed"]) / 1.5 * self.scaling 
                         enemy.change_y = down * abs(enemy.center_y - enemy.properties["opponent"].center_y) / (range_to_player / enemy.properties["movespeed"]) / 1.5 * self.scaling
-
+                    
                 if "feared" not in enemy.properties["mods"].split():
                     enemy.center_x += enemy.change_x * ((60 * delta_time) % 4)
                     if arcade.check_for_collision_with_list(enemy, self.wall_list):
@@ -998,6 +1000,8 @@ class GameView(arcade.View):
                     enemy.center_y -= enemy.change_y * ((60 * delta_time) % 4)
                     if arcade.check_for_collision_with_list(enemy, self.wall_list):
                         enemy.center_y += enemy.change_y * ((60 * delta_time) % 4)
+                if "shot_2" in enemy.properties["mods"].split():
+                    enemy.forward(-2*self.scaling)
                 if "shot" in enemy.properties["mods"].split():
                     enemy.properties["range"] -= abs(enemy.change_x + enemy.change_y)
                 if "shot" in enemy.properties["mods"].split() and (arcade.check_for_collision_with_list(enemy, self.wall_list) or enemy.properties["range"] <= 0):
@@ -1048,14 +1052,34 @@ class GameView(arcade.View):
                 if "boss" in enemy.properties["mods"].split():
                     if self.timer - enemy.properties["lastpatternchange"] > 10:
                         enemy.properties["lastpatternchange"] = self.timer
-                        a = randrange(0, 2, 1)
-                        print(a)
+                        a = randrange(0, 3, 1)
                         enemy.properties["pattern"] = a
                     if enemy.properties["pattern"] == 0:
+                        print(0)
                         enemy.properties["movement"] = "simple"
-                    elif enemy.properties["pattern"] == 1:
+                        enemy.properties["movespeed"] = 1.1
+                    elif enemy.properties["pattern"] == 1: 
+                        print(1)
                         enemy.properties["movement"] = "jerker"
-                           
+                        enemy.properties["movespeed"] = 1.1
+                    elif enemy.properties["pattern"] == 2:
+                        print(2)
+                        enemy.properties["movement"] = "simple"
+                        enemy.properties["movespeed"] = 0.5
+                        if self.timer - enemy.properties["lastshotat"] > 1.5:
+                            enemy.properties["lastshotat"] = self.timer
+                            n = randrange(3, 6, 1)
+                            for i in range(n):
+                                shot = generate_sprite(self.textures.get_sprite_list("textures")[23], enemy.center_x, enemy.center_y, self.scaling)
+                                shot.properties["damage"] = enemy.properties["damage"]
+                                shot.properties["range"] = 1
+                                shot.properties["mods"] = "untouchable shot shot_2"
+                                shot.properties["content"] = ""
+                                shot.angle = (math.atan((self.player_sprite.center_x - enemy.center_x) / (self.player_sprite.center_y - enemy.center_y)) * 180 / 3.14) - 30 + i * 60 / (n-1)
+                                shot.properties["movement"] = "line"
+                                shot.change_x = 0
+                                shot.change_y = 0
+                                self.scene.get_sprite_list("enemies").append(shot)
             #подбор пикапов
             pickup_hit = arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("pickups"))
             if pickup_hit != [] and self.todo and not (pickup_hit[0].properties["in_inventory"] or pickup_hit[0].properties["in_chest"]) and not(arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("enemies"))):
@@ -1086,7 +1110,6 @@ class GameView(arcade.View):
                             if not flag:
                                 i.text = ""
 
-            
             #открытие сундука
             chest_hit = arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("chests"))
             if len(self.in_chest) == 0 and self.todo:

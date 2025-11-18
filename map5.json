@@ -67,6 +67,11 @@
                          "value":0
                         }, 
                         {
+                         "name":"lastshotat",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
                          "name":"max_hitpoints",
                          "type":"int",
                          "value":1000
@@ -89,7 +94,7 @@
                         {
                          "name":"pattern",
                          "type":"int",
-                         "value":1
+                         "value":0
                         }, 
                         {
                          "name":"range",
@@ -99,7 +104,7 @@
                         {
                          "name":"sees_player",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }, 
                         {
                          "name":"vision",
