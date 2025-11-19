@@ -668,9 +668,8 @@ class GameView(arcade.View):
                     if friend.properties["opponent"] == 0:
                         friend.properties["opponent"] = player_hit[0]
                 if "shot" in player_hit[0].properties["mods"].split() or "attack" in player_hit[0].properties["mods"].split():
-                    print(1)
                     self.kill_enemy(player_hit[0])
-                
+    
                 if "trader" in player_hit[0].properties["mods"].split() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0:
                     if "name" in [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties.keys() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["name"] == "diamond":
                         stuff = self.decode_item(player_hit[0].properties["content"])
@@ -682,7 +681,6 @@ class GameView(arcade.View):
                             [i for i in self.inventory if i.properties["selected"]][0].properties["content"].remove_from_sprite_lists()
                             [i for i in self.inventory if i.properties["selected"]][0].properties["content"] = 0
                 if "blood_sacrifice" in player_hit[0].properties["mods"].split() or ("thief" in player_hit[0].properties["mods"].split() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0):
-                    print(1)
                     coin = generate_sprite(self.textures.get_sprite_list("textures")[7], self.player_sprite.center_x, self.player_sprite.center_y, 1.5)
                     coin.properties["type"] = "coin"
                     coin.properties["count"] = 1
@@ -876,7 +874,6 @@ class GameView(arcade.View):
                             self.scene.get_sprite_list("enemies").append(shot)
                             if "triple" in enemy.properties["mods"].split():
                                 for i in range (-1, 2, 2):
-                                    print(i)
                                     shot = generate_sprite(self.textures.get_sprite_list("textures")[23], enemy.center_x, enemy.center_y, self.scaling)
                                     shot.properties = enemy.properties.copy()
                                     del shot.properties["effects"]
@@ -930,7 +927,7 @@ class GameView(arcade.View):
                             enemy.change_x = 0
                             enemy.change_y = 0
 
-                            
+                    #патрулирование       
                     elif "patrolling" in enemy.properties.keys() and ((("effects" in enemy.properties.keys()) and ("stun" not in enemy.properties["effects"].keys())) or ("effects" not in enemy.properties.keys())):
                         point = [int(i) * self.scaling for i in enemy.properties["patrolling"].split()[enemy.properties["pointID"]].split(",")]
                         
@@ -952,6 +949,8 @@ class GameView(arcade.View):
                     else:
                         enemy.change_x = 0
                         enemy.change_y = 0
+
+                #движение союзников к врагам
                 elif enemy.properties["movement"] == "simple" and "friendly" in enemy.properties["mods"].split() and enemy.properties["opponent"] != 0:
                     range_to_player = on_range(enemy.center_x, enemy.center_y, enemy.properties["opponent"].center_x, enemy.properties["opponent"].center_y)
                     if enemy.center_x > enemy.properties["opponent"].center_x:
@@ -965,7 +964,8 @@ class GameView(arcade.View):
                     if range_to_player != 0:
                         enemy.change_x = left * abs(enemy.center_x - enemy.properties["opponent"].center_x) / (range_to_player / enemy.properties["movespeed"]) / 1.5 * self.scaling 
                         enemy.change_y = down * abs(enemy.center_y - enemy.properties["opponent"].center_y) / (range_to_player / enemy.properties["movespeed"]) / 1.5 * self.scaling
-                    
+
+                #перемещение врагов    
                 if "feared" not in enemy.properties["mods"].split():
                     enemy.center_x += enemy.change_x * ((60 * delta_time) % 4)
                     if arcade.check_for_collision_with_list(enemy, self.wall_list):
@@ -993,6 +993,7 @@ class GameView(arcade.View):
                             enemy.properties["lastjerk"] = self.timer
                             enemy.change_x = 0
                             enemy.change_y = 0
+                #...если испуганы
                 else:
                     enemy.center_x -= enemy.change_x * ((60 * delta_time) % 4)
                     if arcade.check_for_collision_with_list(enemy, self.wall_list):
@@ -1000,17 +1001,18 @@ class GameView(arcade.View):
                     enemy.center_y -= enemy.change_y * ((60 * delta_time) % 4)
                     if arcade.check_for_collision_with_list(enemy, self.wall_list):
                         enemy.center_y += enemy.change_y * ((60 * delta_time) % 4)
+
+                #обновление вражеских снарядов
                 if "shot_2" in enemy.properties["mods"].split():
                     enemy.forward(-2*self.scaling)
                 if "shot" in enemy.properties["mods"].split():
                     enemy.properties["range"] -= abs(enemy.change_x + enemy.change_y)
                 if "shot" in enemy.properties["mods"].split() and (arcade.check_for_collision_with_list(enemy, self.wall_list) or enemy.properties["range"] <= 0):
                     self.kill_enemy(enemy)
-                if "shot" in enemy.properties["mods"].split() and (arcade.check_for_collision_with_list(enemy, self.wall_list) or enemy.properties["range"] <= 0):
-                    self.kill_enemy(enemy)
                 if "attack" in enemy.properties["mods"].split() and self.timer - enemy.properties["attackat"] > 1:
                     self.kill_enemy(enemy)
 
+                #управление могилой
                 if "summoner" in enemy.properties["mods"].split() and self.timer - enemy.properties["summonat"] > 10 and len([i for i in self.scene.get_sprite_list("enemies") if "summoned" in i.properties["mods"].split()]) < 5 and ((("effects" in enemy.properties.keys()) and ("stun" not in enemy.properties["effects"].keys())) or ("effects" not in enemy.properties.keys())):
                     enemy.properties["summonat"] = self.timer
                     enemy.properties["hitpoints"] -= 2
@@ -1027,6 +1029,8 @@ class GameView(arcade.View):
                     boner.properties["effects"] = {}
                     boner.properties["lastreaction"] = self.timer
                     self.spawn_enemy_without_collisions(boner)
+
+                #перерождение
                 if "reincarnating" in enemy.properties["mods"].split() and self.timer - enemy.properties["deathat"] > 5:
                     enemy1 = generate_sprite(self.textures.get_sprite_list("textures")[42], enemy.center_x, enemy.center_y, self.scaling*1.2)
                     enemy1.properties = enemy.properties.copy()
@@ -1035,6 +1039,8 @@ class GameView(arcade.View):
                     enemy1.properties["mods"] = "reincarnable"
                     self.scene.get_sprite_list("enemies").append(enemy1)
                     enemy.remove_from_sprite_lists()
+
+                #обновление эффектов
                 if "effects" in enemy.properties.keys():
                     for effect in enemy.properties["effects"].keys():
                         enemy.properties["effects"][effect] -= delta_time
@@ -1049,23 +1055,25 @@ class GameView(arcade.View):
                             enemy.rgb = arcade.color.WHITE
                             break
                         
+                #управление боссом     
                 if "boss" in enemy.properties["mods"].split():
                     if self.timer - enemy.properties["lastpatternchange"] > 10:
                         enemy.properties["lastpatternchange"] = self.timer
                         a = randrange(0, 3, 1)
                         enemy.properties["pattern"] = a
+                    #паттерны поведения
+                    #преследование
                     if enemy.properties["pattern"] == 0:
-                        print(0)
                         enemy.properties["movement"] = "simple"
                         enemy.properties["movespeed"] = 1.1
+                    #рывки    
                     elif enemy.properties["pattern"] == 1: 
-                        print(1)
                         enemy.properties["movement"] = "jerker"
                         enemy.properties["movespeed"] = 1.1
+                    #выстрелы
                     elif enemy.properties["pattern"] == 2:
-                        print(2)
                         enemy.properties["movement"] = "simple"
-                        enemy.properties["movespeed"] = 0.5
+                        enemy.properties["movespeed"] = 0.2
                         if self.timer - enemy.properties["lastshotat"] > 1.5:
                             enemy.properties["lastshotat"] = self.timer
                             n = randrange(3, 6, 1)
@@ -1075,7 +1083,8 @@ class GameView(arcade.View):
                                 shot.properties["range"] = 1
                                 shot.properties["mods"] = "untouchable shot shot_2"
                                 shot.properties["content"] = ""
-                                shot.angle = (math.atan((self.player_sprite.center_x - enemy.center_x) / (self.player_sprite.center_y - enemy.center_y)) * 180 / 3.14) - 30 + i * 60 / (n-1)
+                                shot.angle = ((math.atan((self.player_sprite.center_x - enemy.center_x) / (self.player_sprite.center_y - enemy.center_y)) * 180 / 3.14) - 30 + i * 60 / (n-1)) * (self.player_sprite.center_y <= enemy.center_y) 
+                                shot.angle += (180 + ((math.atan((self.player_sprite.center_x - enemy.center_x) / (self.player_sprite.center_y - enemy.center_y)) * 180 / 3.14) - 30 + i * 60 / (n-1))) * (self.player_sprite.center_y > enemy.center_y)
                                 shot.properties["movement"] = "line"
                                 shot.change_x = 0
                                 shot.change_y = 0
