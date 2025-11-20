@@ -94,7 +94,7 @@
                         {
                          "name":"pattern",
                          "type":"int",
-                         "value":0
+                         "value":3
                         }, 
                         {
                          "name":"range",
@@ -198,4 +198,5 @@
  "tilewidth":16,
  "type":"map",
  "version":"1.10",
- "width":24}
+ "width":24
+}

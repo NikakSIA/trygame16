@@ -71,6 +71,7 @@ class GameView(arcade.View):
         self.save_inv = [save["inv"], save["bag"]]
 
         self.textures = arcade.Scene.from_tilemap(arcade.load_tilemap(str(ASSETS_PATH / "textures.tmj"), self.scaling))
+        self.enemy_groups = arcade.Scene.from_tilemap(arcade.load_tilemap(str(ASSETS_PATH / "enemy_groups.json"), self.scaling))
         self.player_list = arcade.SpriteList()
         self.player_sprite = generate_sprite(self.textures.get_sprite_list("textures")[0], save["pos"][0], save["pos"][1], self.scaling) # Стартовая позиция
         self.player_sprite.properties["hitpoints"] = save["hp"]
@@ -1059,36 +1060,54 @@ class GameView(arcade.View):
                 if "boss" in enemy.properties["mods"].split():
                     if self.timer - enemy.properties["lastpatternchange"] > 10:
                         enemy.properties["lastpatternchange"] = self.timer
-                        a = randrange(0, 3, 1)
+                        a = 3#randrange(0, 5, 1)
                         enemy.properties["pattern"] = a
+                        if a in [0, 2, 3, 4]:
+                            enemy.properties["movement"] = "simple"
+                        elif a == 1:
+                            enemy.properties["movement"] = "jerker"
+                        if a in [0, 1]:
+                            enemy.properties["movespeed"] = 1.1
+                        elif a in [2, 3, 4]:
+                            enemy.properties["movespeed"] = 0.2
+                        if a in [3, 4] and "feared" not in enemy.properties["mods"].split():
+                            enemy.properties["mods"] += " feared"
+                        elif "feared" in enemy.properties["mods"].split():
+                            w = enemy.properties["mods"].split()
+                            w.remove("feared")
+                            enemy.properties["mods"] = str(w).replace(", ", " ")[1:-1]
+
                     #паттерны поведения
-                    #преследование
-                    if enemy.properties["pattern"] == 0:
-                        enemy.properties["movement"] = "simple"
-                        enemy.properties["movespeed"] = 1.1
-                    #рывки    
-                    elif enemy.properties["pattern"] == 1: 
-                        enemy.properties["movement"] = "jerker"
-                        enemy.properties["movespeed"] = 1.1
                     #выстрелы
-                    elif enemy.properties["pattern"] == 2:
-                        enemy.properties["movement"] = "simple"
-                        enemy.properties["movespeed"] = 0.2
-                        if self.timer - enemy.properties["lastshotat"] > 1.5:
-                            enemy.properties["lastshotat"] = self.timer
-                            n = randrange(3, 6, 1)
-                            for i in range(n):
-                                shot = generate_sprite(self.textures.get_sprite_list("textures")[23], enemy.center_x, enemy.center_y, self.scaling)
-                                shot.properties["damage"] = enemy.properties["damage"]
-                                shot.properties["range"] = 1
-                                shot.properties["mods"] = "untouchable shot shot_2"
-                                shot.properties["content"] = ""
-                                shot.angle = ((math.atan((self.player_sprite.center_x - enemy.center_x) / (self.player_sprite.center_y - enemy.center_y)) * 180 / 3.14) - 30 + i * 60 / (n-1)) * (self.player_sprite.center_y <= enemy.center_y) 
-                                shot.angle += (180 + ((math.atan((self.player_sprite.center_x - enemy.center_x) / (self.player_sprite.center_y - enemy.center_y)) * 180 / 3.14) - 30 + i * 60 / (n-1))) * (self.player_sprite.center_y > enemy.center_y)
-                                shot.properties["movement"] = "line"
-                                shot.change_x = 0
-                                shot.change_y = 0
-                                self.scene.get_sprite_list("enemies").append(shot)
+                    if enemy.properties["pattern"] == 2 and self.timer - enemy.properties["lastshotat"] > 1.5:
+                        enemy.properties["lastshotat"] = self.timer
+                        n = randrange(3, 6, 1)
+                        for i in range(n):
+                            shot = generate_sprite(self.textures.get_sprite_list("textures")[23], enemy.center_x, enemy.center_y, self.scaling)
+                            shot.properties["damage"] = enemy.properties["damage"]
+                            shot.properties["range"] = 1
+                            shot.properties["mods"] = "untouchable shot shot_2"
+                            shot.properties["content"] = ""
+                            shot.angle = ((math.atan((self.player_sprite.center_x - enemy.center_x) / (self.player_sprite.center_y - enemy.center_y)) * 180 / 3.14) - 30 + i * 60 / (n-1)) * (self.player_sprite.center_y <= enemy.center_y) 
+                            shot.angle += (180 + ((math.atan((self.player_sprite.center_x - enemy.center_x) / (self.player_sprite.center_y - enemy.center_y)) * 180 / 3.14) - 30 + i * 60 / (n-1))) * (self.player_sprite.center_y > enemy.center_y)
+                            shot.properties["movement"] = "line"
+                            shot.change_x = 0
+                            shot.change_y = 0
+                            self.scene.get_sprite_list("enemies").append(shot)
+                    if enemy.properties["pattern"] in [3, 4] and [i for i in self.scene.get_sprite_list("enemies") if "summoned" in i.properties["mods"].split()] == []:
+                        n = randrange(0, 5, 1)
+                        for index, i in enumerate(self.enemy_groups.get_sprite_list(str(n))):
+                            summon = arcade.Sprite()
+                            summon.properties = i.properties.copy()
+                            summon.texture = i.texture
+                            summon.properties["mods"] += " summoned"
+                            summon.properties["sees_player"] = True
+                            summon.properties["vision"] = enemy.properties["vision"]
+                            summon.scale = self.scaling
+                            summon.center_x = enemy.center_x + index * 20 * self.scaling
+                            summon.center_y = enemy.center_y
+                            self.spawn_enemy_without_collisions(summon)
+    
             #подбор пикапов
             pickup_hit = arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("pickups"))
             if pickup_hit != [] and self.todo and not (pickup_hit[0].properties["in_inventory"] or pickup_hit[0].properties["in_chest"]) and not(arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("enemies"))):
