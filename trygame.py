@@ -56,6 +56,7 @@ class GameView(arcade.View):
         self.enter_pressed = False
         self.attack = False
         self.Gameover = False
+        self.Gameover_text = arcade.Text("", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, anchor_x="center", anchor_y="center", font_size=60)
         self.ms_modifer = 1
         self.stamina = 100
         self.timer = 0
@@ -124,7 +125,7 @@ class GameView(arcade.View):
 
     def kill_enemy(self, enemy):
         if enemy.properties["content"] != "" and not "reincarnable" in enemy.properties["mods"].split():
-            corpse = generate_sprite(self.textures.get_sprite_list("textures")[6], enemy.center_x, enemy.center_y, self.scaling)
+            corpse = generate_sprite(self.textures.get_sprite_list("textures")[6], enemy.center_x, enemy.center_y, enemy.scale)
             corpse.properties["locked"] = False
             corpse.properties["content"] = enemy.properties["content"]
             corpse.properties["delete"] = True
@@ -149,7 +150,12 @@ class GameView(arcade.View):
             corpse.properties["hitpoints"] = 50
             corpse.properties["mods"] = "reincarnating"
             corpse.properties["deathat"] = self.timer
-            self.scene.get_sprite_list("enemies").append(corpse)       
+            self.scene.get_sprite_list("enemies").append(corpse)
+        if "boss" in enemy.properties["mods"].split():
+            while len(self.scene.get_sprite_list("enemies")) != 0:
+                self.scene.get_sprite_list("enemies")[0].remove_from_sprite_lists()
+            self.Gameover = True
+
         enemy.remove_from_sprite_lists()
 
     def spawn_enemy_without_collisions(self, enemy, hash={}):
@@ -324,6 +330,7 @@ class GameView(arcade.View):
         self.damage_text.draw()
         self.minus_hp_text.draw()
         [i.draw() for i in self.price_texts]
+        self.Gameover_text.draw()
     #def process_keychange(self):
 
 
@@ -590,6 +597,7 @@ class GameView(arcade.View):
 
     def on_update(self, delta_time):       
         if not (self.Gameover or self.pause):
+            self.Gameover_text.text = ""
             self.physics_engine.update()
             self.timer = round(self.timer + delta_time, 3)
             inventory = [0 for i in self.inventory]
@@ -1058,14 +1066,15 @@ class GameView(arcade.View):
                         
                 #управление боссом     
                 if "boss" in enemy.properties["mods"].split():
-                    if self.timer - enemy.properties["lastpatternchange"] > 10:
+                    if self.timer - enemy.properties["lastpatternchange"] > 15 and [i for i in self.scene.get_sprite_list("enemies") if "summoned" in i.properties["mods"].split()] == []:
                         enemy.properties["lastpatternchange"] = self.timer
-                        a = 3#randrange(0, 5, 1)
+                        a = randrange(0, 5, 1)
                         enemy.properties["pattern"] = a
                         if a in [0, 2, 3, 4]:
                             enemy.properties["movement"] = "simple"
                         elif a == 1:
                             enemy.properties["movement"] = "jerker"
+                            enemy.properties["lastjerk"] = self.timer
                         if a in [0, 1]:
                             enemy.properties["movespeed"] = 1.1
                         elif a in [2, 3, 4]:
@@ -1094,12 +1103,14 @@ class GameView(arcade.View):
                             shot.change_x = 0
                             shot.change_y = 0
                             self.scene.get_sprite_list("enemies").append(shot)
+                    #призыв
                     if enemy.properties["pattern"] in [3, 4] and [i for i in self.scene.get_sprite_list("enemies") if "summoned" in i.properties["mods"].split()] == []:
                         n = randrange(0, 5, 1)
                         for index, i in enumerate(self.enemy_groups.get_sprite_list(str(n))):
                             summon = arcade.Sprite()
                             summon.properties = i.properties.copy()
                             summon.texture = i.texture
+                            summon.properties["effects"] = {}
                             summon.properties["mods"] += " summoned"
                             summon.properties["sees_player"] = True
                             summon.properties["vision"] = enemy.properties["vision"]
@@ -1218,7 +1229,12 @@ class GameView(arcade.View):
                 self.damage_text.text = ""
             if self.timer - self.minus_hp_update_time > 0.5 and self.minus_hp_text.text != "":
                 self.minus_hp_text.text = ""
-            
+        elif self.pause:
+            self.Gameover_text.text = "Paused ..."
+        elif self.Gameover and len(self.scene.get_sprite_list("enemies")) != 0:
+            self.Gameover_text.text = "Game over!"
+        else:
+            self.Gameover_text.text = "You win!"
             
 
 def main():
