@@ -46,7 +46,7 @@
         }, 
         {
          "compression":"zlib",
-         "data":"eJxjYKAP0GSjk0WjACuQYh9oF4wCUgC++CJXbrCBgXBrHBHlkAQ7BI+CoQ3oUedgS09DKQ9SM52TYxa17MeXZ\/HFx2g+HwX0BKPt4KEFYGXHUCrTcQFS\/HCIlYHhMBYMFG+gmQMpBNZA99ngwNaD2N3kAFxx2cSOifEBALQRDuI=",
+         "data":"eJxjYKAP0GSjk0WjACuQYh9oF4wCUgC++CJXbrCBgXBrHBHlkAQ7BI+CoQ3oUedgS09DKQ9SM52TYxa17MeXZ\/HFx2g+HwX0BKPt4KEFYGXHUCrTcQFS\/HCIlYHhMBYMFG+gmQMpBNZA99ngwNZo7j4MzIc6rAwJA+NSygGuuGxix8T4AAAVkBA8",
          "encoding":"base64",
          "height":32,
          "id":4,
@@ -925,7 +925,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1passive\/t:38#sbuffs:movespeed&0.1#bin_chest:False#sname:map#bin_inventory:False#"
+                         "value":"1passive\/t:38#sbuffs:movespeed&0.1#bin_chest:False#sname:boots#bin_inventory:False#"
                         }, 
                         {
                          "name":"damage",
@@ -3033,6 +3033,11 @@
                          "value":100
                         }, 
                         {
+                         "name":"name",
+                         "type":"string",
+                         "value":"ruby"
+                        }, 
+                        {
                          "name":"spid",
                          "type":"int",
                          "value":4
@@ -3424,6 +3429,11 @@
                          "value":100
                         }, 
                         {
+                         "name":"name",
+                         "type":"string",
+                         "value":"red_key"
+                        }, 
+                        {
                          "name":"rgb",
                          "type":"string",
                          "value":"255 255 0"
@@ -3472,6 +3482,11 @@
                          "value":100
                         }, 
                         {
+                         "name":"name",
+                         "type":"string",
+                         "value":"blue_key"
+                        }, 
+                        {
                          "name":"rgb",
                          "type":"string",
                          "value":"185 0 215"
@@ -3518,6 +3533,11 @@
                          "name":"max_count",
                          "type":"int",
                          "value":100
+                        }, 
+                        {
+                         "name":"name",
+                         "type":"string",
+                         "value":"yellow_key"
                         }, 
                         {
                          "name":"rgb",

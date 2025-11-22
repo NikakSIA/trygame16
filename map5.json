@@ -117,64 +117,6 @@
                  "width":40,
                  "x":147.564912280702,
                  "y":61.7824561403509
-                }, 
-                {
-                 "gid":1402,
-                 "height":16,
-                 "id":5,
-                 "name":"",
-                 "properties":[
-                        {
-                         "name":"content",
-                         "type":"string",
-                         "value":""
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"float",
-                         "value":10
-                        }, 
-                        {
-                         "name":"hitpoints",
-                         "type":"float",
-                         "value":25
-                        }, 
-                        {
-                         "name":"max_hitpoints",
-                         "type":"int",
-                         "value":25
-                        }, 
-                        {
-                         "name":"mods",
-                         "type":"string",
-                         "value":""
-                        }, 
-                        {
-                         "name":"movement",
-                         "type":"string",
-                         "value":"simple"
-                        }, 
-                        {
-                         "name":"movespeed",
-                         "type":"float",
-                         "value":1.05
-                        }, 
-                        {
-                         "name":"sees_player",
-                         "type":"bool",
-                         "value":false
-                        }, 
-                        {
-                         "name":"vision",
-                         "type":"float",
-                         "value":50
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":16,
-                 "x":351.298245614035,
-                 "y":36.4631578947369
                 }],
          "opacity":1,
          "properties":[

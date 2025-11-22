@@ -4,6 +4,8 @@ from random import randrange
 import pathlib
 import json
 import math
+from pyglet.graphics import Batch
+
 
 def eq(s, i, n):
     s[i] = n
@@ -37,10 +39,9 @@ class GameView(arcade.View):
     """ Главный класс приложения. """
 
     def __init__(self):
-        print("z")
         super().__init__()
         self.scaling = 1
-        self.pause = False
+        self.pause = True
         self.a_pressed = False
         self.d_pressed = False
         self.w_pressed = False
@@ -64,13 +65,14 @@ class GameView(arcade.View):
         self.oldtime1 = 0        
         self.change_melee_attack_x = 0
         self.change_melee_attack_y = 0
+        self.batch = []
         self.price_texts = []
+        self.boss_hp = 0
         with open("save.json", encoding="UTF-8") as file_in:
             save = json.load(file_in)
-        print(save)
         self.map_ID = save["mapID"]
         self.save_inv = [save["inv"], save["bag"]]
-
+        
         self.textures = arcade.Scene.from_tilemap(arcade.load_tilemap(str(ASSETS_PATH / "textures.tmj"), self.scaling))
         self.enemy_groups = arcade.Scene.from_tilemap(arcade.load_tilemap(str(ASSETS_PATH / "enemy_groups.json"), self.scaling))
         self.player_list = arcade.SpriteList()
@@ -217,7 +219,6 @@ class GameView(arcade.View):
 
     def setup(self):
         map_path = ASSETS_PATH / f"map{self.map_ID}.json"
-
         self.game_map = arcade.load_tilemap(str(map_path))
         self.scaling = SCREEN_HEIGHT / (self.game_map.width * self.game_map.tile_width)
         self.game_map = arcade.load_tilemap(str(map_path), self.scaling)         
@@ -265,7 +266,6 @@ class GameView(arcade.View):
         self.wall_list.extend(self.scene.get_sprite_list("sp_doors"))
         if self.save_inv != []:
             for i, b in enumerate(self.save_inv[0]):
-                print(b)
                 a = self.decode_item(b)
                 a.position = self.inventory[i].position
                 if a.properties["type"] == "bag":
@@ -287,6 +287,12 @@ class GameView(arcade.View):
         with open("save.json", "w") as file_out:
             json.dump(save, file_out)
         self.stat_update()
+
+        self.pause = True
+        with open("info.json", encoding="UTF-8") as file_in:
+            info = json.load(file_in)
+        self.info = info[self.map_ID]
+        self.process_keychange1()
 
         a = 0
         for i in self.scene.get_sprite_list("enemies"):
@@ -315,7 +321,12 @@ class GameView(arcade.View):
             if "rgb" in i.properties.keys():
                 i.rgb = tuple(map(int, i.properties["rgb"].split()))
                 del i.properties["rgb"]
-            
+        if self.map_ID == 5:
+            self.boss_hp = generate_sprite(self.textures.get_sprite_list("textures")[49], SCREEN_WIDTH/2, 20, self.scaling)
+            self.boss_hp.scale_x = 60*self.scaling
+            self.boss_hp.rgb = (255, 0, 0)
+            self.icons.append(self.boss_hp)
+
     def on_draw(self):
         self.clear()
         self.scene.draw()
@@ -331,6 +342,7 @@ class GameView(arcade.View):
         self.minus_hp_text.draw()
         [i.draw() for i in self.price_texts]
         self.Gameover_text.draw()
+        [i.draw() for i in self.batch]
     #def process_keychange(self):
 
 
@@ -454,7 +466,6 @@ class GameView(arcade.View):
                     if on_range(self.player_sprite.center_x, self.player_sprite.center_y, door.center_x, door.center_y) < 16 * self.scaling and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["spid"] == door.properties["spid"]:
                         for i in self.scene.get_sprite_list("sp_doors"):
                             if i.properties["spid"] == [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["spid"]:
-                                print(i)
                                 i.scale = 0
                         [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] += -1
                         if [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] <= 0:
@@ -535,6 +546,18 @@ class GameView(arcade.View):
                 self.setup()
                 self.scene.get_sprite_list("pickups").extend(in_inventory)
 
+        if self.pause:
+            for i in self.scene._sprite_lists:
+                i.alpha = 120
+            self.wall_list.alpha = 120
+            for i, a in enumerate(self.info):
+                text = arcade.Text(a, 0, SCREEN_HEIGHT-20-i*30, font_size=14)
+                self.batch.append(text)
+        else:
+            self.batch = []
+            for i in self.scene._sprite_lists:
+                i.alpha = 255
+            self.wall_list.alpha = 255
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.W:
@@ -563,7 +586,7 @@ class GameView(arcade.View):
             self.ctrl_pressed = True
         elif key == arcade.key.ENTER:
             self.enter_pressed = True
-        elif key == 96:
+        elif key == arcade.key.TAB:
             self.pause = not(self.pause)
         self.process_keychange1()
     def on_key_release(self, key, modifiers):
@@ -680,7 +703,7 @@ class GameView(arcade.View):
                     self.kill_enemy(player_hit[0])
     
                 if "trader" in player_hit[0].properties["mods"].split() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0:
-                    if "name" in [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties.keys() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["name"] == "diamond":
+                    if "name" in [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties.keys() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["name"] in ["diamond", "ruby"]:
                         stuff = self.decode_item(player_hit[0].properties["content"])
                         stuff.center_x = player_hit[0].center_x
                         stuff.center_y = player_hit[0].center_y - 30 * self.scaling
@@ -851,10 +874,11 @@ class GameView(arcade.View):
                             if enemy.properties["movement"] == "jerker":
                                 enemy.properties["range"] = 0
                     
-                    if "boss" in enemy.properties["mods"].split() and self.player_sprite.center_y > 20*self.scaling:
+                    if "boss" in enemy.properties["mods"].split() and self.player_sprite.center_y > 20*self.scaling and not enemy.properties["sees_player"]:
                         enemy.properties["sees_player"] = True
                         enemy.visible = True
                         enemy.properties["vision"] = 1000*self.scaling
+                        enemy.properties["lastpatternchange"] = self.timer - 10
                     if range_to_player > enemy.properties["vision"] * self.scaling:
                         enemy.properties["sees_player"] = False
 
@@ -916,7 +940,7 @@ class GameView(arcade.View):
                                     boner.properties["mods"] = "melee"
                                     boner.properties["isattack"] = False
                                     boner.properties["lastattack"] = 0
-                                    boner.texture = self.textures.get_sprite_list("textures")[45].texture
+                                    boner.texture = self.textures.get_sprite_list("textures")[44].texture
                                 self.scene.get_sprite_list("enemies").append(boner)
                         if "melee" in enemy.properties["mods"].split() and self.timer - 3 > enemy.properties["lastattack"]:
                             enemy.properties["lastattack"] = self.timer
@@ -1041,7 +1065,7 @@ class GameView(arcade.View):
 
                 #перерождение
                 if "reincarnating" in enemy.properties["mods"].split() and self.timer - enemy.properties["deathat"] > 5:
-                    enemy1 = generate_sprite(self.textures.get_sprite_list("textures")[42], enemy.center_x, enemy.center_y, self.scaling*1.2)
+                    enemy1 = generate_sprite(self.textures.get_sprite_list("textures")[41], enemy.center_x, enemy.center_y, self.scaling*1.2)
                     enemy1.properties = enemy.properties.copy()
                     enemy1.properties["movement"] = "simple"
                     enemy1.properties["hitpoints"] = 90
@@ -1063,12 +1087,15 @@ class GameView(arcade.View):
                             enemy.properties["effects"].pop(effect)
                             enemy.rgb = arcade.color.WHITE
                             break
-                        
+
                 #управление боссом     
-                if "boss" in enemy.properties["mods"].split():
-                    if self.timer - enemy.properties["lastpatternchange"] > 15 and [i for i in self.scene.get_sprite_list("enemies") if "summoned" in i.properties["mods"].split()] == []:
+                if "boss" in enemy.properties["mods"].split() and enemy.properties["sees_player"]:
+                    #обновление паттерна
+                    if self.timer - enemy.properties["lastpatternchange"] > 15:
                         enemy.properties["lastpatternchange"] = self.timer
                         a = randrange(0, 5, 1)
+                        if a == enemy.properties["pattern"]:
+                            a = randrange(0, 5, 1)
                         enemy.properties["pattern"] = a
                         if a in [0, 2, 3, 4]:
                             enemy.properties["movement"] = "simple"
@@ -1085,7 +1112,9 @@ class GameView(arcade.View):
                             w = enemy.properties["mods"].split()
                             w.remove("feared")
                             enemy.properties["mods"] = str(w).replace(", ", " ")[1:-1]
-
+                    #обновление полосы здоровья
+                    self.boss_hp.scale_x = 60*self.scaling*enemy.properties["hitpoints"]/enemy.properties["max_hitpoints"]
+                    self.boss_hp.left = 64*self.scaling
                     #паттерны поведения
                     #выстрелы
                     if enemy.properties["pattern"] == 2 and self.timer - enemy.properties["lastshotat"] > 1.5:
@@ -1211,7 +1240,7 @@ class GameView(arcade.View):
                 self.player_sprite.rgb = arcade.color.WHITE
                 self.bonus_stats["strength"] -= 0.3
                 self.bonus_stats["movespeed"] -= 0.3
-
+                
             #обновление всех текстов
             self.hp_text.text = str(self.player_sprite.properties["hitpoints"])
             if [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0:
@@ -1229,13 +1258,12 @@ class GameView(arcade.View):
                 self.damage_text.text = ""
             if self.timer - self.minus_hp_update_time > 0.5 and self.minus_hp_text.text != "":
                 self.minus_hp_text.text = ""
-        elif self.pause:
-            self.Gameover_text.text = "Paused ..."
-        elif self.Gameover and len(self.scene.get_sprite_list("enemies")) != 0:
+        
+        if self.Gameover and len(self.scene.get_sprite_list("enemies")) != 0:
             self.Gameover_text.text = "Game over!"
-        else:
+        elif self.Gameover:
             self.Gameover_text.text = "You win!"
-            
+            self.boss_hp.scale = 0    
 
 def main():
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT)

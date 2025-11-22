@@ -18,7 +18,7 @@
         }, 
         {
          "compression":"zlib",
-         "data":"eJxjYECAJnYGvMCHGb88ITDQ5g8UgLkLm\/tAYsh4IAGu8MfnfmqYTy1AjvtBekjB9AKkpAlxCuIFX5qkFSDXbGLDn9bmkwuISVuUpDeYeitW7OK4+KSafxaHODY+Pv\/gCgNs5lMzH6KbT21AK\/PPQcxOANIP0OX02Sg3f6iGCyXmAwDlyiTR",
+         "data":"eJxjYECAJnYGvICQPCEw0OYPFIC5C5v7QGLIeCABLvvxuZ8a5lMLkON+9PAnhOkFSLFTnAJ34QsTWgFyzSZWH63NJxcQk7YoSW8w9Vas2MVx8Uk1n5kE8\/H5B1cYYDOfmvkQ3XxqA1qZz8IKNjsBSB9Al9Nno9z8oRoulJgPAB3DKI0=",
          "encoding":"base64",
          "height":24,
          "id":4,
@@ -32,7 +32,7 @@
         }, 
         {
          "compression":"zlib",
-         "data":"eJxjYBgFxAJNtoF2wSgYBaNgqIMd7NjF46hUvjCzEq9WjgkVEys3HEAmC23Nt4GavwnNHpC986hgNy7383JQbjY2APIHtcOM2uYhhyvIbFAc4AoPkDwAicoIsA==",
+         "data":"eJxjYBgFxAJNtoF2wSgYBaNgqIMd7NjF46hUvjCzEq82hA0VEys3HEAmC23Nt4GavwnNHpC986hgNy7383JQbjY2APIHtcOM2uYhhyvIbFAc4AoPkDwA1bUKgA==",
          "encoding":"base64",
          "height":24,
          "id":8,
@@ -422,7 +422,7 @@
                         {
                          "name":"vision",
                          "type":"float",
-                         "value":200
+                         "value":120
                         }],
                  "rotation":0,
                  "type":"",
@@ -581,7 +581,7 @@
                         {
                          "name":"vision",
                          "type":"float",
-                         "value":10
+                         "value":80
                         }],
                  "rotation":0,
                  "type":"",

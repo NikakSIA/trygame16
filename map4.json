@@ -2232,7 +2232,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1key\/t:5#bin_inventory:False#bin_chest:True#"
+                         "value":""
                         }, 
                         {
                          "name":"damage",
@@ -2295,7 +2295,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1key\/t:5#bin_inventory:False#bin_chest:True#"
+                         "value":""
                         }, 
                         {
                          "name":"damage",
