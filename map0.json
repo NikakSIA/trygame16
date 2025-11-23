@@ -18,7 +18,7 @@
         }, 
         {
          "compression":"zlib",
-         "data":"eJxjYCAMzhKhhlrqv7ExMBxnY2gAsYE0wwk0DJInxfxzEHyAHLcgg1A20tSTaj4ymMtCXfPzWYlXfw2PWmzqAY4fFME=",
+         "data":"eJxjYCAMmFmJUEQl9d\/YGBiOszE0gNhAmuEEGgbJk2I+CysYPyDHLcgglI009aSajwzmslDX\/Hw8ZqCrv0bAPnT1AJ89CuA=",
          "encoding":"base64",
          "height":12,
          "id":3,
@@ -32,7 +32,7 @@
         }, 
         {
          "compression":"zlib",
-         "data":"eJxjYBicQJNt4Oy2ZyVNfQER6pmB2BqozpYVTDeQ4y5SQDYLrW2AAABErwKd",
+         "data":"eJxjYBicQJNt4Oy2ZyVNfQER6i1ZGBisgepsWcF0A1kOIwFks9DaBggAAHWbAtc=",
          "encoding":"base64",
          "height":12,
          "id":4,
@@ -233,4 +233,5 @@
  "tilewidth":16,
  "type":"map",
  "version":"1.10",
- "width":12}
+ "width":12
+}

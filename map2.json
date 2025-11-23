@@ -238,6 +238,11 @@
                          "value":100
                         }, 
                         {
+                         "name":"name",
+                         "type":"string",
+                         "value":"Spetial_key"
+                        }, 
+                        {
                          "name":"price",
                          "type":"int",
                          "value":10
@@ -1437,7 +1442,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1spkey\/t:21#bin_chest:True#bin_inventory:False#ispid:2#"
+                         "value":"1spkey\/t:21#bin_chest:True#bin_inventory:False#ispid:2#sname:mysterios_key#"
                         }, 
                         {
                          "name":"damage",

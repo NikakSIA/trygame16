@@ -55,6 +55,8 @@ class GameView(arcade.View):
         self.e_pressed = False
         self.ctrl_pressed = False
         self.enter_pressed = False
+        self.shift_pressed = False
+        self.alt_pressed = False
         self.attack = False
         self.Gameover = False
         self.Gameover_text = arcade.Text("", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, anchor_x="center", anchor_y="center", font_size=60)
@@ -66,6 +68,7 @@ class GameView(arcade.View):
         self.change_melee_attack_x = 0
         self.change_melee_attack_y = 0
         self.batch = []
+        self.info_language = "RU"
         self.price_texts = []
         self.boss_hp = 0
         with open("save.json", encoding="UTF-8") as file_in:
@@ -289,9 +292,13 @@ class GameView(arcade.View):
         self.stat_update()
 
         self.pause = True
+        self.info = {}
         with open("info.json", encoding="UTF-8") as file_in:
             info = json.load(file_in)
-        self.info = info[self.map_ID]
+        self.info["RU"] = info[self.map_ID]
+        with open("info1.json", encoding="UTF-8") as file_in:
+            info = json.load(file_in)
+        self.info["EN"] = info[self.map_ID]
         self.process_keychange1()
 
         a = 0
@@ -534,12 +541,9 @@ class GameView(arcade.View):
                             shot.change_x = 2*self.scaling 
                         shot.properties["tp"] = True
                         self.progectiles.append(shot)
+
             #переход на другой уровень
             if self.todo and arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("portals")):
-                
-                """for i in arcade.Scene.from_tilemap(arcade.load_tilemap(f'map{arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("portals"))[0].properties["mapID"]}.json')).get_sprite_list("portals"):
-                    if i.properties["mapID"] == self.map_ID:
-                        self.map_ID_old = self.map_ID"""
                 self.map_ID = arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("portals"))[0].properties["mapID"]
                 in_inventory = [i for i in self.scene.get_sprite_list("pickups") if i.properties["in_inventory"] or i.properties["in_chest"]]
                 self.player_sprite.position = (arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("portals"))[0].properties["player_x"], arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("portals"))[0].properties["player_y"])
@@ -550,9 +554,15 @@ class GameView(arcade.View):
             for i in self.scene._sprite_lists:
                 i.alpha = 120
             self.wall_list.alpha = 120
-            for i, a in enumerate(self.info):
+            self.batch = []
+            for i, a in enumerate(self.info[self.info_language]):
                 text = arcade.Text(a, 0, SCREEN_HEIGHT-20-i*30, font_size=14)
                 self.batch.append(text)
+            if self.shift_pressed and self.alt_pressed:
+                if self.info_language == "RU":
+                    self.info_language = "EN"
+                elif self.info_language == "EN":
+                    self.info_language = "RU"
         else:
             self.batch = []
             for i in self.scene._sprite_lists:
@@ -586,6 +596,10 @@ class GameView(arcade.View):
             self.ctrl_pressed = True
         elif key == arcade.key.ENTER:
             self.enter_pressed = True
+        elif key == 65505:
+            self.shift_pressed = True
+        elif key == 65513:
+            self.alt_pressed = True
         elif key == arcade.key.TAB:
             self.pause = not(self.pause)
         self.process_keychange1()
@@ -616,6 +630,10 @@ class GameView(arcade.View):
             self.ctrl_pressed = False
         elif key == arcade.key.ENTER:
             self.enter_pressed = False
+        elif key == 65505:
+            self.shift_pressed = False
+        elif key == 65513:
+            self.alt_pressed = False
         self.process_keychange1()
 
     def on_update(self, delta_time):       
@@ -1091,7 +1109,7 @@ class GameView(arcade.View):
                 #управление боссом     
                 if "boss" in enemy.properties["mods"].split() and enemy.properties["sees_player"]:
                     #обновление паттерна
-                    if self.timer - enemy.properties["lastpatternchange"] > 15:
+                    if self.timer - enemy.properties["lastpatternchange"] > 15 and enemy.properties["Groups_left"] == 0:
                         enemy.properties["lastpatternchange"] = self.timer
                         a = randrange(0, 5, 1)
                         if a == enemy.properties["pattern"]:
@@ -1112,6 +1130,8 @@ class GameView(arcade.View):
                             w = enemy.properties["mods"].split()
                             w.remove("feared")
                             enemy.properties["mods"] = str(w).replace(", ", " ")[1:-1]
+                        if a in [3, 4]:
+                            enemy.properties["Groups_left"] = 5
                     #обновление полосы здоровья
                     self.boss_hp.scale_x = 60*self.scaling*enemy.properties["hitpoints"]/enemy.properties["max_hitpoints"]
                     self.boss_hp.left = 64*self.scaling
@@ -1134,6 +1154,7 @@ class GameView(arcade.View):
                             self.scene.get_sprite_list("enemies").append(shot)
                     #призыв
                     if enemy.properties["pattern"] in [3, 4] and [i for i in self.scene.get_sprite_list("enemies") if "summoned" in i.properties["mods"].split()] == []:
+                        enemy.properties["Groups_left"] -= 1
                         n = randrange(0, 5, 1)
                         for index, i in enumerate(self.enemy_groups.get_sprite_list(str(n))):
                             summon = arcade.Sprite()

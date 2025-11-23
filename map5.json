@@ -42,6 +42,11 @@
                  "name":"",
                  "properties":[
                         {
+                         "name":"Groups_left",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
                          "name":"content",
                          "type":"string",
                          "value":"100coin\/t:7#bin_chest:True#bin_inventory:False#"

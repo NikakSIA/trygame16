@@ -1,0 +1,54 @@
+[
+    [
+        "Greetings, Adventurer! Your goal is to reach the dungeon ahead of you.",
+        "To do that, you need to unlock the door.",
+        "Conveniently, there's a key nearby made exactly for such tasks.",
+        "There’s also a guard at the door who might get in your way.",
+        "Try to avoid running into him.",
+        "Use 'WASD' to move around.",
+        "Use 'Space' to interact with objects (pick up a key or open a door).",
+        "Use 'Tab' to exit or return to this menu.",
+        "To change the language in the menu, use the combination of 'left Shift' and 'left Alt'",
+        "Good luck!"
+    ],
+    [
+        "Inside this building is the entrance to the dungeon.",
+        "Goblins and their pet golem will try to keep you out.",
+        "Maybe you can find something here that will help you deal with them.",
+        "To use weapons, the arrow keys (UP, DOWN, LEFT, RIGHT) will do.",
+        "By the way, keys open not only doors but some chests too.",
+        "There should be a bag here. Pick it up so you don’t have to carry everything in your hands.",
+        "And be careful with those strange hooded guys:",
+        "they can give you coins, but… at a certain price."
+    ],
+    [
+        "Welcome to the dungeon!",
+        "Enemies here are much more dangerous than the ones you've seen before.",
+        "Not all doors you see here open with ordinary keys.",
+        "Some doors may not look like doors, and some keys may not look like keys.",
+        "Use your wits!",
+        "Reach the minecart to move on.",
+        "Not sure why you need this, but those hooded folks are allergic to cheese. ",
+        "And keep your belongings close when you’re near them."
+    ],
+    [
+        "Ahead of you is a graveyard — the 'homeland' of skeletons.",
+        "Destroy the Main Grave in the center if you want to rid this place of them.",
+        "If you have enough coins lying around, ",
+        "you can spend them on ‘trinkets’ from the hooded merchant.",
+        "I’ve heard he accepts payment in gemstones.",
+        "Your task is to reach the passage to the next dungeon level — it looks like a hole in the floor.",
+        "And remember: a Door is not always what looks like a door."
+    ],
+    [
+        "The dungeon is becoming more ruthless!",
+        "Rumor has it that even chests here want to kill you. Stay alert.",
+        "An enemy may be waiting for you in the most unexpected place.",
+        "It might not be immediately clear which key fits which door — experiment!",
+        "The next floor is the last one. Find the passage and head there only when you're ready."
+    ],
+    [
+        "The final battle lies ahead.",
+        "I hope you're prepared..."
+    ]
+]
