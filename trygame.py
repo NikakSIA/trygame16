@@ -407,6 +407,7 @@ class GameView(arcade.View):
                     selected_invevtory.properties["content"].properties["in_inventory"] = True
                     selected_invevtory.properties["content"].properties["in_chest"] = False
                     self.stat_update()
+                    arcade.load_sound(ASSETS_PATH / "sounds/pickup1.mp3").play()
 
                 elif selected_chest.properties["content"] == 0 and selected_invevtory.properties["content"].properties["type"] != "bag":
                     selected_chest.properties["content"] = selected_invevtory.properties["content"]
@@ -416,6 +417,7 @@ class GameView(arcade.View):
                     selected_chest.properties["content"].properties["in_inventory"] = False
                     selected_chest.properties["content"].properties["in_chest"] = True
                     self.stat_update()
+                    arcade.load_sound(ASSETS_PATH / "sounds/pickup1.mp3").play()
                     
 
                 elif selected_chest.properties["content"].properties["type"] == selected_invevtory.properties["content"].properties["type"] and "name" not in selected_chest.properties["content"].properties.keys() and "name" not in selected_invevtory.properties["content"].properties.keys():
@@ -426,7 +428,8 @@ class GameView(arcade.View):
                     else:
                         selected_chest.properties["content"].remove_from_sprite_lists()
                         selected_chest.properties["content"] = 0
-                              
+                    arcade.load_sound(ASSETS_PATH / "sounds/pickup1.mp3").play()
+
                 elif selected_invevtory.properties["content"].properties["type"] != "bag":
                     rezerv = selected_invevtory.properties["content"]
                     selected_invevtory.properties["content"] = selected_chest.properties["content"]
@@ -441,6 +444,7 @@ class GameView(arcade.View):
                     selected_chest.properties["content"].properties["in_inventory"] = False
                     selected_chest.properties["content"].properties["in_chest"] = True
                     self.stat_update()
+                    arcade.load_sound(ASSETS_PATH / "sounds/pickup1.mp3").play()
 
             #использование расходников
             if self.todo and len(self.in_chest) == 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] == "disposable":
@@ -463,6 +467,7 @@ class GameView(arcade.View):
                 for door in self.scene.get_sprite_list("doors"):
                     if on_range(self.player_sprite.center_x, self.player_sprite.center_y, door.center_x, door.center_y) < 16 * self.scaling:
                         door.remove_from_sprite_lists()
+                        arcade.load_sound(ASSETS_PATH/"sounds/open_door1.mp3").play()
                         [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] += -1
                         if [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] <= 0:
                             [i for i in self.inventory if i.properties["selected"]][0].properties["content"].remove_from_sprite_lists() 
@@ -686,6 +691,9 @@ class GameView(arcade.View):
                 enemy_hit = arcade.check_for_collision_with_list(self.melee_attack, self.scene.get_sprite_list("enemies"))
             else:
                 enemy_hit = []
+                if weapon_in_hands and self.melee_attack.properties["active"]:
+                    pass
+                    "searching sound...."
             for enemy in [i for i in enemy_hit if not "untouchable" in i.properties["mods"].split() and not "friendly" in i.properties["mods"].split()]:
                 if weapon_in_hands and self.melee_attack.properties["active"]:
                     enemy.properties["hitpoints"] -= [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["damage"] * (self.player_sprite.properties["strength"] + self.bonus_stats["strength"])
@@ -699,8 +707,11 @@ class GameView(arcade.View):
                     for friend in [i for i in self.scene.get_sprite_list("enemies") if "friendly" in i.properties["mods"].split()]:
                         if friend.properties["opponent"] == 0:
                             friend.properties["opponent"] = enemy
-                if enemy.properties["hitpoints"] <= 0:
-                    self.kill_enemy(enemy)
+                    if enemy.properties["hitpoints"] <= 0:
+                        self.kill_enemy(enemy)
+                        arcade.load_sound(ASSETS_PATH/"sounds/kill1.mp3").play(0.2)
+                    else:
+                        arcade.load_sound(ASSETS_PATH/"sounds/hit2.wav").play(0.2)
 
             #боль игрока + смерть            
             player_hit = arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("enemies"))  
@@ -709,6 +720,7 @@ class GameView(arcade.View):
                     if randrange(0, 100, 1) > self.player_sprite.properties["armor"] + self.bonus_stats["armor"]:
                         self.player_sprite.properties["hitpoints"] -= player_hit[0].properties["damage"]
                         self.minus_hp_text.text = f'-{player_hit[0].properties["damage"]}'
+                        arcade.load_sound(ASSETS_PATH/"sounds/damage1.mp3").play()
                     else:
                         self.minus_hp_text.text = "miss!"
                     self.minus_hp_update_time = self.timer
@@ -1185,7 +1197,9 @@ class GameView(arcade.View):
                         pickup_hit[0].properties["in_inventory"] = True
                     self.stat_update()
                     print(self.decode_item(pickup_hit[0], reverse=True))
+                    arcade.load_sound(ASSETS_PATH / "sounds/pickup1.mp3").play()
                     if "price" in pickup_hit[0].properties:
+                        arcade.load_sound(ASSETS_PATH / "sounds/pay1.mp3").play()
                         [i for i in [i.properties["content"] for i in self.inventory if i.properties["content"] != 0] if i.properties["type"] == "coin" and i.properties["count"] >= pickup_hit[0].properties["price"]][0].properties["count"] -= pickup_hit[0].properties["price"]
                         [i.remove_from_sprite_lists() for i in [i.properties["content"] for i in self.inventory if i.properties["content"] != 0] if i.properties["count"] <= 0]
                         for i in self.inventory:
