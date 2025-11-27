@@ -479,6 +479,10 @@ class GameView(arcade.View):
                         for i in self.scene.get_sprite_list("sp_doors"):
                             if i.properties["spid"] == [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["spid"]:
                                 i.scale = 0
+                        if [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["name"] == "TNT":
+                            arcade.load_sound(ASSETS_PATH/"sounds/explosion1.wav").play()
+                        else:
+                            arcade.load_sound(ASSETS_PATH/"sounds/open_door1.mp3").play()
                         [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] += -1
                         if [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] <= 0:
                             [i for i in self.inventory if i.properties["selected"]][0].properties["content"].remove_from_sprite_lists() 
@@ -738,6 +742,7 @@ class GameView(arcade.View):
                         stuff.center_x = player_hit[0].center_x
                         stuff.center_y = player_hit[0].center_y - 30 * self.scaling
                         self.scene.get_sprite_list("pickups").append(stuff)
+                        arcade.load_sound(ASSETS_PATH / "sounds/pay1.mp3").play()
                         [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] -= 1
                         if [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] <= 0:
                             [i for i in self.inventory if i.properties["selected"]][0].properties["content"].remove_from_sprite_lists()
@@ -753,6 +758,7 @@ class GameView(arcade.View):
                         [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] -= 1
                         if "name" in [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties.keys() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["name"] == "cheese":
                             self.kill_enemy(player_hit[0])
+                            arcade.load_sound(ASSETS_PATH / "sounds/death_by_cheese.mp3").play()
                         if [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] in ["passive", "weapon", "disposable", "staff"]:
                             coin.properties["count"] = 5
                         if [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] <= 0:
@@ -786,8 +792,10 @@ class GameView(arcade.View):
                         self.attack = True
                         self.oldtime = self.timer
                         if [i.properties["content"] for i in self.inventory if i.properties["selected"]][0].properties["class"] == "melee":                           
-                            self.melee_attack.properties["active"] = True                           
+                            self.melee_attack.properties["active"] = True
+                            arcade.load_sound(ASSETS_PATH / "sounds/attack.mp3").play()                           
                         elif [i.properties["content"] for i in self.inventory if i.properties["selected"]][0].properties["class"] == "range" and "arrow" in [i.properties["content"].properties["type"] for i in self.inventory if i.properties["content"] != 0]:
+                            arcade.load_sound(ASSETS_PATH / "sounds/bow.mp3").play()
                             shot = generate_sprite(self.textures.get_sprite_list("textures")[8], self.player_sprite.center_x, self.player_sprite.center_y, self.scaling)
                             shot.properties["damage"] = [i.properties["content"] for i in self.inventory if i.properties["selected"]][0].properties["damage"] + [i for i in [i.properties["content"] for i in self.inventory if i.properties["content"] != 0] if i.properties["type"] == "arrow"][0].properties["damage"]
                             shot.properties["range"] = [i.properties["content"] for i in self.inventory if i.properties["selected"]][0].properties["range"] / 1.5 * self.scaling
@@ -901,6 +909,7 @@ class GameView(arcade.View):
                             enemy.properties["sees_player"] = True
                             if "invisible" in enemy.properties["mods"].split():
                                 enemy.visible = True
+                                arcade.load_sound(ASSETS_PATH / "sounds/wow.mp3").play()
                             if enemy.properties["movement"] == "jerker":
                                 enemy.properties["range"] = 0
                     
@@ -923,6 +932,7 @@ class GameView(arcade.View):
                         enemy.change_x = left * abs(enemy.center_x - self.player_sprite.center_x) / (range_to_player / enemy.properties["movespeed"]) / 1.5 * self.scaling 
                         enemy.change_y = down * abs(enemy.center_y - self.player_sprite.center_y) / (range_to_player / enemy.properties["movespeed"]) / 1.5 * self.scaling
                         if "shooting" in enemy.properties["mods"].split() and self.timer - 3 > enemy.properties["lastshotat"]:
+                            arcade.load_sound(ASSETS_PATH/"sounds/magic.mp3").play()
                             enemy.properties["lastshotat"] = self.timer
                             shot = generate_sprite(self.textures.get_sprite_list("textures")[23], enemy.center_x, enemy.center_y, self.scaling)
                             shot.properties = enemy.properties.copy()
@@ -949,6 +959,7 @@ class GameView(arcade.View):
                                     shot.change_y = down * abs(enemy.center_y - self.player_sprite.center_y) / (range_to_player / enemy.properties["movespeed"]) / 1.5 * self.scaling
                                     self.scene.get_sprite_list("enemies").append(shot)
                         if "necromancy" in enemy.properties["mods"].split() and self.timer - 7 > enemy.properties["lastshotat"]:
+                            arcade.load_sound(ASSETS_PATH/"sounds/boner1").play()
                             enemy.properties["lastshotat"] = self.timer
                             for i in range((1*"double" in enemy.properties["mods"].split()) + 1):
                                 boner = generate_sprite(self.textures.get_sprite_list("textures")[20], enemy.center_x-i*20*self.scaling, enemy.center_y, self.scaling)
@@ -973,6 +984,7 @@ class GameView(arcade.View):
                                     boner.texture = self.textures.get_sprite_list("textures")[44].texture
                                 self.scene.get_sprite_list("enemies").append(boner)
                         if "melee" in enemy.properties["mods"].split() and self.timer - 3 > enemy.properties["lastattack"]:
+                            arcade.load_sound(ASSETS_PATH/"sounds/attack.mp3").play()
                             enemy.properties["lastattack"] = self.timer
                             enemy.properties["isattack"] = True
                             attack = generate_sprite(self.textures.get_sprite_list("textures")[3], enemy.center_x+25*enemy.change_x, enemy.center_y+25*enemy.change_y, self.scaling)
@@ -1077,6 +1089,7 @@ class GameView(arcade.View):
 
                 #управление могилой
                 if "summoner" in enemy.properties["mods"].split() and self.timer - enemy.properties["summonat"] > 10 and len([i for i in self.scene.get_sprite_list("enemies") if "summoned" in i.properties["mods"].split()]) < 5 and ((("effects" in enemy.properties.keys()) and ("stun" not in enemy.properties["effects"].keys())) or ("effects" not in enemy.properties.keys())):
+                    arcade.load_sound(ASSETS_PATH/"sounds/boner1.mp3").play()
                     enemy.properties["summonat"] = self.timer
                     enemy.properties["hitpoints"] -= 2
                     boner = generate_sprite(self.textures.get_sprite_list("textures")[20], enemy.center_x + randrange(-45, 45, 1) * self.scaling, enemy.center_y + randrange(-45, 45, 1) * self.scaling, self.scaling)
@@ -1217,6 +1230,7 @@ class GameView(arcade.View):
             chest_hit = arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("chests"))
             if len(self.in_chest) == 0 and self.todo:
                 if chest_hit != [] and "mimic" not in chest_hit[0].properties.keys() and chest_hit[0].properties["locked"] and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] == "key":
+                    arcade.load_sound(ASSETS_PATH / "sounds/key_open_chest.mp3").play()
                     chest_hit[0].properties["locked"] = False
                     [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] += -1
                     if [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] <= 0:
@@ -1224,9 +1238,14 @@ class GameView(arcade.View):
                         [i for i in self.inventory if i.properties["selected"]][0].properties["content"] = 0
                 elif (chest_hit != [] and "mimic" not in chest_hit[0].properties.keys() and not chest_hit[0].properties["locked"] or ([i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] == "bag")):
                     if chest_hit != []:
-                        self.opened_chest = chest_hit[0]            
+                        self.opened_chest = chest_hit[0] 
+                        if self.opened_chest.texture == self.textures.get_sprite_list("textures")[6].texture:
+                            arcade.load_sound(ASSETS_PATH / "sounds/open_bag.mp3").play()
+                        else:
+                            arcade.load_sound(ASSETS_PATH / "sounds/chest_open.mp3").play()
                     else:
                         self.opened_chest = [i for i in self.inventory if i.properties["selected"]][0].properties["content"]
+                        arcade.load_sound(ASSETS_PATH / "sounds/open_bag.mp3").play()
                     for i in range(self.opened_chest.properties["slots"]):
                         chest_part = generate_sprite(self.textures.get_sprite_list("textures")[1], 50 + i % 10 * 30, (SCREEN_HEIGHT - 30) - i // 10 * 30, 1.5)
                         chest_part.properties["selected"] = False
@@ -1240,6 +1259,7 @@ class GameView(arcade.View):
                         self.in_chest.append(chest_part)
                     self.in_chest[0].properties["selected"] = True
                 elif chest_hit != [] and "mimic" in chest_hit[0].properties.keys():
+                    arcade.load_sound(ASSETS_PATH / "sounds/wow.mp3").play()
                     mimic = arcade.Sprite()
                     mimic.texture = chest_hit[0].texture
                     mimic.center_x = chest_hit[0].center_x
@@ -1257,9 +1277,17 @@ class GameView(arcade.View):
                     mimic.scale = self.scaling * 1.1
                     chest_hit[0].remove_from_sprite_lists()
                     self.scene.get_sprite_list("enemies").append(mimic)
+                elif chest_hit != []:
+                    arcade.load_sound(ASSETS_PATH / "sounds/NO.mp3").play()
             #закрытие сундука        
             if self.enter_pressed and len(self.in_chest) > 0:
                 content = ""
+                if self.opened_chest.texture == self.textures.get_sprite_list("textures")[6].texture:
+                    pass
+                elif self.opened_chest.texture == self.textures.get_sprite_list("textures")[13].texture:
+                    arcade.load_sound(ASSETS_PATH / "sounds/bag_close.mp3").play()
+                else:
+                    arcade.load_sound(ASSETS_PATH / "sounds/chest_close.mp3").play()
                 for i in [i.properties["content"] for i in self.in_chest if i.properties["content"] != 0]:
                     content += self.decode_item(i, reverse=True) + " "
                 if "delete" not in self.opened_chest.properties.keys() or len(content.split()) > 0:
