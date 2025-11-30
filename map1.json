@@ -283,6 +283,102 @@
                  "width":16,
                  "x":352,
                  "y":160
+                }, 
+                {
+                 "gid":2043,
+                 "height":16,
+                 "id":73,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"buffs",
+                         "type":"string",
+                         "value":"hitpoints&50"
+                        }, 
+                        {
+                         "name":"count",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"in_chest",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"in_inventory",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"max_count",
+                         "type":"int",
+                         "value":100
+                        }, 
+                        {
+                         "name":"name",
+                         "type":"string",
+                         "value":"healing_potion"
+                        }, 
+                        {
+                         "name":"type",
+                         "type":"string",
+                         "value":"disposable"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":40,
+                 "y":167
+                }, 
+                {
+                 "gid":1748,
+                 "height":16,
+                 "id":74,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"buffs",
+                         "type":"string",
+                         "value":"movespeed&0.1"
+                        }, 
+                        {
+                         "name":"count",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"in_chest",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"in_inventory",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"max_count",
+                         "type":"int",
+                         "value":100
+                        }, 
+                        {
+                         "name":"name",
+                         "type":"string",
+                         "value":"speed_potion"
+                        }, 
+                        {
+                         "name":"type",
+                         "type":"string",
+                         "value":"disposable"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":10,
+                 "y":197.5
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -597,7 +693,7 @@
          "y":0
         }],
  "nextlayerid":50,
- "nextobjectid":73,
+ "nextobjectid":75,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

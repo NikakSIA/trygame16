@@ -62,6 +62,12 @@ class GameView(arcade.View):
         self.Gameover_text = arcade.Text("", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, anchor_x="center", anchor_y="center", font_size=60)
         self.ms_modifer = 1
         self.stamina = 100
+        self.stamina_sound = arcade.load_sound("sounds/stamina.mp3")
+        self.stamina_player = self.stamina_sound.play(loop=True, volume=0)
+        self.palyer_movetype = "stand"
+        self.walk_sound = arcade.load_sound("sounds/walk2.mp3")
+        self.sound_player = self.walk_sound.play(loop=True, volume=0)
+        #.play(loop=True, speed=(self.player_sprite.properties["movespeed"] + self.bonus_stats["movespeed"]) * self.ms_modifer / 1.5, volume=0.7)
         self.timer = 0
         self.oldtime = 0
         self.oldtime1 = 0        
@@ -160,6 +166,7 @@ class GameView(arcade.View):
             while len(self.scene.get_sprite_list("enemies")) != 0:
                 self.scene.get_sprite_list("enemies")[0].remove_from_sprite_lists()
             self.Gameover = True
+            arcade.load_sound(ASSETS_PATH / "sounds/you_win.mp3").play()
 
         enemy.remove_from_sprite_lists()
 
@@ -219,6 +226,13 @@ class GameView(arcade.View):
             for i in set(item.properties.keys()) - set(("count", "type", "max_count", "tile_id", "content")):
                 content += str(type(item.properties[i]))[str(type(item.properties[i])).index("'") + 1] + i + ":" + str(item.properties[i]) + "#"
             return content
+
+    def walk(self, soundtype):
+        if soundtype != self.palyer_movetype:
+            self.palyer_movetype = soundtype
+            self.walk_sound.stop(self.sound_player)
+            if soundtype != "stand":
+                self.sound_player = self.walk_sound.play(loop=True, volume=0.7, speed=self.ms_modifer/1.35)
 
     def setup(self):
         map_path = ASSETS_PATH / f"map{self.map_ID}.json"
@@ -333,7 +347,7 @@ class GameView(arcade.View):
             self.boss_hp.scale_x = 60*self.scaling
             self.boss_hp.rgb = (255, 0, 0)
             self.icons.append(self.boss_hp)
-
+        
     def on_draw(self):
         self.clear()
         self.scene.draw()
@@ -448,6 +462,10 @@ class GameView(arcade.View):
 
             #использование расходников
             if self.todo and len(self.in_chest) == 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] == "disposable":
+                if [i for i in self.inventory if i.properties["selected"]][0].properties["content"].texture in [self.textures.get_sprite_list("textures")[32].texture, self.textures.get_sprite_list("textures")[30].texture]:
+                    arcade.load_sound(ASSETS_PATH/"sounds/drink.mp3").play()
+                else:
+                    arcade.load_sound(ASSETS_PATH/"sounds/eat.mp3").play()
                 buffs = str_to_hash([i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["buffs"])
                 for i in buffs.keys():
                     if float(buffs[i]) < 5:
@@ -460,8 +478,7 @@ class GameView(arcade.View):
                 if [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] <= 0:
                     [i for i in self.inventory if i.properties["selected"]][0].properties["content"].remove_from_sprite_lists()
                     [i for i in self.inventory if i.properties["selected"]][0].properties["content"] = 0
-
-
+    
             #ДВЕРИ
             if self.todo and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] == "key":
                 for door in self.scene.get_sprite_list("doors"):
@@ -488,12 +505,26 @@ class GameView(arcade.View):
                             [i for i in self.inventory if i.properties["selected"]][0].properties["content"].remove_from_sprite_lists() 
                             [i for i in self.inventory if i.properties["selected"]][0].properties["content"] = 0
 
+            """if any([self.w_pressed, self.a_pressed, self.s_pressed, self.d_pressed]) and not self.walk_sound.is_playing(self.sound_player) and (not(self.w_pressed and self.s_pressed) or self.a_pressed or self.d_pressed) and (not(self.a_pressed and self.d_pressed) or self.w_pressed or self.s_pressed):
+                self.sound_player = self.walk_sound.play(loop=True, volume=0.7, speed=0.7)
+                print(1)
+            elif not any([self.w_pressed, self.a_pressed, self.s_pressed, self.d_pressed]) or (self.w_pressed and self.s_pressed and not(self.a_pressed or self.d_pressed)) or (self.a_pressed and self.d_pressed and not(self.w_pressed or self.s_pressed)):
+                self.walk_sound.stop(self.sound_player)
+                print(0)
+            if self.walk_sound.is_playing(self.sound_player) and self.ctrl_pressed:
+                self.walk_sound.stop(self.sound_player)
+                self.sound_player = self.walk_sound.play(loop=True, volume=0.7, speed=1)
+                self.sound_player.
+            elif self.walk_sound.is_playing(self.sound_player):
+                self.walk_sound.stop(self.sound_player)
+                self.sound_player = self.walk_sound.play(loop=True, volume=0.7, speed=0.7)"""
             #колдунства
             if self.todo and len(self.in_chest) == 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] == "staff":
                 staff = [i for i in self.inventory if i.properties["selected"]][0].properties["content"]
                 if self.timer - staff.properties["lastcast"] > staff.properties["qldown"]:
                     staff.properties["lastcast"] = self.timer
                     if staff.properties["spellid"] == 0:
+                        arcade.load_sound(ASSETS_PATH/"sounds/boner1.mp3").play()
                         if [i for i in self.scene.get_sprite_list("enemies") if "friendly" in i.properties["mods"].split()] != []:
                             [i for i in self.scene.get_sprite_list("enemies") if "friendly" in i.properties["mods"].split()][0].properties["hitpoints"] += 100
                             if [i for i in self.scene.get_sprite_list("enemies") if "friendly" in i.properties["mods"].split()][0].properties["hitpoints"] > [i for i in self.scene.get_sprite_list("enemies") if "friendly" in i.properties["mods"].split()][0].properties["max_hitpoints"]:
@@ -518,6 +549,7 @@ class GameView(arcade.View):
                         shot = generate_sprite(self.textures.get_sprite_list("textures")[35], self.player_sprite.center_x, self.player_sprite.center_y, self.scaling)
                         shot.properties["damage"] = 0
                         shot.properties["range"] = 150 * self.scaling
+                        arcade.load_sound(ASSETS_PATH/"sounds/magic3.mp3").play()
                         shot.change_x = self.player_sprite.change_x * 2
                         shot.change_y = self.player_sprite.change_y * 2
                         if shot.change_x == 0 and shot.change_y == 0:
@@ -526,22 +558,26 @@ class GameView(arcade.View):
                         self.progectiles.append(shot)
 
                     elif staff.properties["spellid"] == 2:    
+                        arcade.load_sound(ASSETS_PATH/"sounds/magic4.mp3").play()
                         for i in self.scene.get_sprite_list("enemies"):
                             if "effects" in i.properties.keys():
                                 i.properties["effects"]["stun"] = 7
 
                     elif staff.properties["spellid"] == 3:
+                        arcade.load_sound(ASSETS_PATH/"sounds/BloodlustTarget.wav").play()
                         self.player_sprite.properties["rageat"] = self.timer
                         self.player_sprite.rgb = arcade.color.RED
                         self.bonus_stats["strength"] += 0.3
                         self.bonus_stats["movespeed"] += 0.3
 
-                    elif staff.properties["spellid"] == 4:    
+                    elif staff.properties["spellid"] == 4:
+                        arcade.load_sound(ASSETS_PATH/"sounds/magic5.mp3").play()
                         for i in self.scene.get_sprite_list("pickups"):
                             if i.properties["in_inventory"] and i.properties["type"] == "staff":
                                 i.properties["lastcast"] -= min(i.properties["qldown"]/2, 5)
                     
                     elif staff.properties["spellid"] == 5:
+                        arcade.load_sound(ASSETS_PATH/"sounds/teleport1.mp3").play()
                         shot = generate_sprite(self.textures.get_sprite_list("textures")[35], self.player_sprite.center_x, self.player_sprite.center_y, self.scaling)
                         shot.properties["range"] = 150 * self.scaling
                         shot.change_x = self.player_sprite.change_x * 3
@@ -553,6 +589,7 @@ class GameView(arcade.View):
 
             #переход на другой уровень
             if self.todo and arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("portals")):
+                arcade.load_sound(ASSETS_PATH / "sounds/nextlevel.mp3").play()
                 self.map_ID = arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("portals"))[0].properties["mapID"]
                 in_inventory = [i for i in self.scene.get_sprite_list("pickups") if i.properties["in_inventory"] or i.properties["in_chest"]]
                 self.player_sprite.position = (arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("portals"))[0].properties["player_x"], arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("portals"))[0].properties["player_y"])
@@ -565,8 +602,15 @@ class GameView(arcade.View):
             self.wall_list.alpha = 120
             self.batch = []
             for i, a in enumerate(self.info[self.info_language]):
-                text = arcade.Text(a, 0, SCREEN_HEIGHT-20-i*30, font_size=14)
+                text = arcade.Text(a, 0, SCREEN_HEIGHT-20-i*16*self.scaling, font_size=7.7*self.scaling)
                 self.batch.append(text)
+            for i, a in enumerate(["strength", "agility", "max_hitpoints", "movespeed"]):
+                text = arcade.Text(f"{a.replace('_', ' ')}:{self.player_sprite.properties[a]+self.bonus_stats[a]}", 0, SCREEN_HEIGHT-20-(i+len(self.info[self.info_language]))*16*self.scaling, font_size=7.7*self.scaling, color=[arcade.color.RED, arcade.color.GREEN][i%2])
+                self.batch.append(text)
+            if [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] == "weapon":
+                self.batch.append(arcade.Text(f'damage:{[i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["damage"]}', 0, SCREEN_HEIGHT-20-(len(self.info[self.info_language])+4)*16*self.scaling, font_size=7.7*self.scaling))
+                self.batch.append(arcade.Text(f'cooldown:{[i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["qldown"]}', 0, SCREEN_HEIGHT-20-(len(self.info[self.info_language])+5)*16*self.scaling, font_size=7.7*self.scaling))
+                self.batch.append(arcade.Text(f'total damage:{[i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["damage"] * (self.player_sprite.properties[a]+self.bonus_stats[a])}', 0, SCREEN_HEIGHT-20-(len(self.info[self.info_language])+6)*16*self.scaling, font_size=7.7*self.scaling, color=arcade.color.RED))
             if self.shift_pressed and self.alt_pressed:
                 if self.info_language == "RU":
                     self.info_language = "EN"
@@ -611,6 +655,7 @@ class GameView(arcade.View):
             self.alt_pressed = True
         elif key == arcade.key.TAB:
             self.pause = not(self.pause)
+            arcade.load_sound(ASSETS_PATH / "sounds/pause.mp3").play()
         self.process_keychange1()
     def on_key_release(self, key, modifiers):
         if key == arcade.key.W:
@@ -663,13 +708,12 @@ class GameView(arcade.View):
                 self.player_sprite.change_y = -(self.player_sprite.properties["movespeed"] + self.bonus_stats["movespeed"]) * self.ms_modifer / 1.5 * self.scaling * ((60 * delta_time) % 4)
             else:
                 self.player_sprite.change_y = 0
-            
             if self.d_pressed and not self.a_pressed:
                 self.player_sprite.change_x = (self.player_sprite.properties["movespeed"] + self.bonus_stats["movespeed"]) * self.ms_modifer / 1.5 * self.scaling * ((60 * delta_time) % 4)
             elif self.a_pressed and not self.d_pressed:
                 self.player_sprite.change_x = -(self.player_sprite.properties["movespeed"] + self.bonus_stats["movespeed"]) * self.ms_modifer / 1.5 * self.scaling * ((60 * delta_time) % 4)
             else:
-                self.player_sprite.change_x = 0 
+                self.player_sprite.change_x = 0
             
             #спринт            
             if self.stamina <= 20:
@@ -686,7 +730,24 @@ class GameView(arcade.View):
                 if self.stamina > 100: 
                     self.stamina = 100
             self.mark.scale_x = 0.02 * self.stamina
+            
+            #звук бега
+            if self.player_sprite.change_x == 0 and self.player_sprite.change_y == 0:
+                self.walk("stand")
+            elif self.ms_modifer == 1:
+                self.walk("normal")
+            elif self.ms_modifer == 0.7:
+                self.walk("slow")
+            elif self.ms_modifer == 1.35:
+                self.walk("fast")
+            
+            #отдышка
+            if self.stamina <= 20 and not self.stamina_sound.is_playing(self.stamina_player):
+                self.stamina_player = self.stamina_sound.play(loop=True, volume=0.5)
+            elif self.stamina > 20:
+                self.stamina_sound.stop(self.stamina_player)
 
+            #хп реген
             if int(self.timer)//30 > int(self.timer-delta_time)//30 and self.player_sprite.properties["hitpoints"] + self.bonus_stats["hp_reg"] <= self.player_sprite.properties["max_hitpoints"]:
                 self.player_sprite.properties["hitpoints"] = int(self.player_sprite.properties["hitpoints"] + self.bonus_stats["hp_reg"])
 
@@ -767,7 +828,9 @@ class GameView(arcade.View):
                     self.scene.get_sprite_list("pickups").append(coin)
                 if self.player_sprite.properties["hitpoints"] <= 0:
                     self.player_sprite.remove_from_sprite_lists()
-                    self.Gameover = True                
+                    self.Gameover = True 
+                    arcade.load_sound(ASSETS_PATH / "sounds/gameover.mp3").play(1.5)
+                    arcade.load_sound(ASSETS_PATH / "sounds/gameover1.mp3").play()
 
             #атака дружелюбных врагов
             for friend in [i for i in self.scene.get_sprite_list("enemies") if "friendly" in i.properties["mods"].split()]:
