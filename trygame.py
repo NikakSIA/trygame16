@@ -67,14 +67,15 @@ class GameView(arcade.View):
         self.palyer_movetype = "stand"
         self.walk_sound = arcade.load_sound("sounds/walk2.mp3")
         self.sound_player = self.walk_sound.play(loop=True, volume=0)
-        #.play(loop=True, speed=(self.player_sprite.properties["movespeed"] + self.bonus_stats["movespeed"]) * self.ms_modifer / 1.5, volume=0.7)
+        self.soundtrack = arcade.load_sound("kevin macleoid/Scheming-Weasel-faster0.mp3")
+        self.soundtrack_player = self.soundtrack.play(0, loop=True)
         self.timer = 0
         self.oldtime = 0
         self.oldtime1 = 0        
         self.change_melee_attack_x = 0
         self.change_melee_attack_y = 0
         self.batch = []
-        self.info_language = "RU"
+        self.info_language = "EN"
         self.price_texts = []
         self.boss_hp = 0
         with open("save.json", encoding="UTF-8") as file_in:
@@ -166,6 +167,7 @@ class GameView(arcade.View):
             while len(self.scene.get_sprite_list("enemies")) != 0:
                 self.scene.get_sprite_list("enemies")[0].remove_from_sprite_lists()
             self.Gameover = True
+            self.soundtrack.stop(self.soundtrack_player)
             arcade.load_sound(ASSETS_PATH / "sounds/you_win.mp3").play()
 
         enemy.remove_from_sprite_lists()
@@ -342,6 +344,10 @@ class GameView(arcade.View):
             if "rgb" in i.properties.keys():
                 i.rgb = tuple(map(int, i.properties["rgb"].split()))
                 del i.properties["rgb"]
+        self.soundtrack.stop(self.soundtrack_player)
+        aa = ["kevin macleoid/Scheming-Weasel-faster0.mp3", "kevin macleoid/Hitman1.mp3", "kevin macleoid/Ibn-Al-Noor2.mp3", "kevin macleoid/Come-Play-with-Me3.mp3", "kevin macleoid/Day-of-Chaos4.mp3", "sounds/bossfigth_song1.mp3"]
+        self.soundtrack = arcade.load_sound(aa[self.map_ID])
+        self.soundtrack_player = self.soundtrack.play(0.3, loop=True)
         if self.map_ID == 5:
             self.boss_hp = generate_sprite(self.textures.get_sprite_list("textures")[49], SCREEN_WIDTH/2, 20, self.scaling)
             self.boss_hp.scale_x = 60*self.scaling
@@ -505,19 +511,6 @@ class GameView(arcade.View):
                             [i for i in self.inventory if i.properties["selected"]][0].properties["content"].remove_from_sprite_lists() 
                             [i for i in self.inventory if i.properties["selected"]][0].properties["content"] = 0
 
-            """if any([self.w_pressed, self.a_pressed, self.s_pressed, self.d_pressed]) and not self.walk_sound.is_playing(self.sound_player) and (not(self.w_pressed and self.s_pressed) or self.a_pressed or self.d_pressed) and (not(self.a_pressed and self.d_pressed) or self.w_pressed or self.s_pressed):
-                self.sound_player = self.walk_sound.play(loop=True, volume=0.7, speed=0.7)
-                print(1)
-            elif not any([self.w_pressed, self.a_pressed, self.s_pressed, self.d_pressed]) or (self.w_pressed and self.s_pressed and not(self.a_pressed or self.d_pressed)) or (self.a_pressed and self.d_pressed and not(self.w_pressed or self.s_pressed)):
-                self.walk_sound.stop(self.sound_player)
-                print(0)
-            if self.walk_sound.is_playing(self.sound_player) and self.ctrl_pressed:
-                self.walk_sound.stop(self.sound_player)
-                self.sound_player = self.walk_sound.play(loop=True, volume=0.7, speed=1)
-                self.sound_player.
-            elif self.walk_sound.is_playing(self.sound_player):
-                self.walk_sound.stop(self.sound_player)
-                self.sound_player = self.walk_sound.play(loop=True, volume=0.7, speed=0.7)"""
             #колдунства
             if self.todo and len(self.in_chest) == 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] == "staff":
                 staff = [i for i in self.inventory if i.properties["selected"]][0].properties["content"]
