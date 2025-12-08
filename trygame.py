@@ -33,6 +33,17 @@ def generate_sprite(t, x, y, s):
 ASSETS_PATH = pathlib.Path(__file__).resolve().parent.parent / "trygame16"
 SCREEN_WIDTH = 700#576
 SCREEN_HEIGHT = SCREEN_WIDTH
+class GameWindow(arcade.Window):
+    def on_update(self, delta_time):
+        self.update_window()
+        self.resizing = False
+    def on_resize(self, width, height):
+        self.resizing = True
+
+    def update_window(self):
+        if not self.resizing and self.width != self.height:
+            pass
+
 
 
 class GameView(arcade.View):
@@ -59,6 +70,10 @@ class GameView(arcade.View):
         self.alt_pressed = False
         self.attack = False
         self.Gameover = False
+        self.resized = False
+        self.l = 0
+        self.camera = arcade.Camera2D()
+        self.camera.use()
         self.Gameover_text = arcade.Text("", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, anchor_x="center", anchor_y="center", font_size=60)
         self.ms_modifer = 1
         self.stamina = 100
@@ -182,7 +197,7 @@ class GameView(arcade.View):
             self.spawn_enemy_without_collisions(enemy, hash)
             
 
-    def stat_update(self, reverse=False):
+    def stat_update(self):
         for i in self.bonus_stats.keys():
             self.bonus_stats[i] = 0
         for slot in self.inventory:
@@ -236,12 +251,46 @@ class GameView(arcade.View):
             if soundtype != "stand":
                 self.sound_player = self.walk_sound.play(loop=True, volume=0.7, speed=self.ms_modifer/1.35)
 
-    def setup(self):
+    def loading(self, re=False):
+        self.resized = False
+        self.l = min(self.width, self.height)
+        if re:
+            self.scene1 = arcade.Scene()
+            for i in ["enemies", "pickups", "chests", "doors", "sp_doors"]:
+                self.scene1.add_sprite_list(i, sprite_list=self.scene.get_sprite_list(i))
+                for sprite in self.scene1.get_sprite_list(i):
+                    sprite.center_x /= self.scaling
+                    sprite.center_y /= self.scaling
+            for i in self.inventory:
+                i.center_x /= self.scaling
+                i.center_y /= self.scaling
+            for i in self.icons:
+                i.center_x /= self.scaling
+                i.center_y /= self.scaling
         map_path = ASSETS_PATH / f"map{self.map_ID}.json"
-        self.game_map = arcade.load_tilemap(str(map_path))
-        self.scaling = SCREEN_HEIGHT / (self.game_map.width * self.game_map.tile_width)
+        self.game_map = arcade.load_tilemap(str(map_path))                
+        self.scaling = self.l / (self.game_map.width * self.game_map.tile_width)
         self.game_map = arcade.load_tilemap(str(map_path), self.scaling)         
         self.scene = arcade.Scene.from_tilemap(self.game_map)
+        self.camera.position = (self.l/2, self.l/2)
+        self.camera.match_window()
+        if re:
+            for i in ["enemies", "pickups", "chests", "doors", "sp_doors"]:
+                for sprite in self.scene1.get_sprite_list(i):
+                    sprite.center_x *= self.scaling
+                    sprite.center_y *= self.scaling
+                    sprite.scale = self.scaling
+                del self.scene[i]
+                self.scene.add_sprite_list(i, sprite_list=self.scene1.get_sprite_list(i))
+            for i in self.inventory:
+                i.center_x *= self.scaling
+                i.center_y *= self.scaling
+                i.scale = self.scaling
+            for i in self.icons:
+                i.center_x *= self.scaling
+                i.center_y *= self.scaling
+                i.scale = self.scaling
+            self.melee_attack.scale = 0.01
         self.player_sprite.scale = self.scaling
         self.player_sprite.center_x *= self.scaling
         self.player_sprite.center_y *= self.scaling
@@ -252,6 +301,11 @@ class GameView(arcade.View):
                 self.scene.add_sprite_list(i)
 
         self.mark.position = ([i for i in self.inventory if i.properties["selected"]][0].center_x - 30, [i for i in self.inventory if i.properties["selected"]][0].center_y)
+        self.hp_text = arcade.Text(str(self.player_sprite.properties["hitpoints"]), self.heart.center_x + 8*self.scaling, self.heart.center_y - 4*self.scaling, font_size=8*self.scaling)
+        self.selected_inv_text = arcade.Text("", self.l - 3.5*self.scaling, self.l - 147*self.scaling, font_size=8*self.scaling, anchor_x="right")
+        self.damage_text = arcade.Text("", 0, 0, font_size=int(10*self.scaling))
+        self.minus_hp_text = arcade.Text("", self.heart.center_x + 10, self.heart.center_y - 15, font_size=int(10*self.scaling))
+
 
         self.wall_list = arcade.SpriteList()
         self.wall_list.extend(self.scene.get_sprite_list("walls"))
@@ -261,28 +315,64 @@ class GameView(arcade.View):
 
         border = generate_sprite(self.scene.get_sprite_list("walls")[0], -1, 0, 1)
         border.scale_x = 0.1
-        border.scale_y = 500
+        border.scale_y = 5000
         border.visible = False
         self.wall_list.append(border)
 
         border = generate_sprite(self.scene.get_sprite_list("walls")[0], self.game_map.width * self.game_map.tile_width * self.scaling + 1, 0, 1)
         border.scale_x = 0.1
-        border.scale_y = 500
+        border.scale_y = 5000
         border.visible = False
         self.wall_list.append(border)
 
         border = generate_sprite(self.scene.get_sprite_list("walls")[0], 0, -1, 1)
-        border.scale_x = 500
+        border.scale_x = 5000
         border.scale_y = 0.1
         border.visible = False
         self.wall_list.append(border)
 
         border = generate_sprite(self.scene.get_sprite_list("walls")[0], 0, self.game_map.height * self.game_map.tile_height * self.scaling + 1, 1)
-        border.scale_x = 500
+        border.scale_x = 5000
         border.scale_y = 0.1
         border.visible = False
         self.wall_list.append(border)
         self.wall_list.extend(self.scene.get_sprite_list("sp_doors"))
+
+        self.pause = True
+        self.process_keychange1()
+
+        self.price_texts.clear()
+        for i in self.scene.get_sprite_list("pickups"):
+            if "price" in i.properties.keys() and not(i.properties["in_chest"] or i.properties["in_inventory"]):
+                self.price_texts.append(arcade.Text(f"{i.properties['price']}¢", i.center_x - 5 * self.scaling, i.center_y + 10 * self.scaling, font_size=8*self.scaling))
+            if "rgb" in i.properties.keys():
+                i.rgb = tuple(map(int, i.properties["rgb"].split()))
+                del i.properties["rgb"]
+
+        for i in self.scene.get_sprite_list("chests"):
+            if "treasure" in i.properties.keys():
+                i.properties["content"] += i.properties["treasure"].split()[randrange(0, len(i.properties["treasure"].split()), 1)]
+        
+        for i in self.scene.get_sprite_list("sp_doors"):
+            if "rgb" in i.properties.keys():
+                i.rgb = tuple(map(int, i.properties["rgb"].split()))
+                del i.properties["rgb"]
+
+        if self.map_ID == 5:
+            self.boss_hp = generate_sprite(self.textures.get_sprite_list("textures")[49], SCREEN_WIDTH/2, 20, self.scaling)
+            self.boss_hp.scale_x = 60*self.scaling
+            self.boss_hp.rgb = (255, 0, 0)
+            self.icons.append(self.boss_hp)
+
+    def setup(self):
+        self.info = {}
+        with open("info.json", encoding="UTF-8") as file_in:
+            info = json.load(file_in)
+        self.info["RU"] = info[self.map_ID]
+        with open("info1.json", encoding="UTF-8") as file_in:
+            info = json.load(file_in)
+        self.info["EN"] = info[self.map_ID]
+        self.loading()
         if self.save_inv != []:
             for i, b in enumerate(self.save_inv[0]):
                 a = self.decode_item(b)
@@ -292,7 +382,6 @@ class GameView(arcade.View):
                 self.scene.get_sprite_list("pickups").append(a)
                 self.inventory[i].properties["content"] = a
             self.save_inv.clear()
-        
         save = {"mapID": self.map_ID, "pos": [self.player_sprite.center_x / self.scaling, self.player_sprite.center_y / self.scaling], "hp": self.player_sprite.properties["hitpoints"], "inv":[], "bag": ""}
         save["max_hp"] = self.player_sprite.properties["max_hitpoints"]
         save["stren"] = self.player_sprite.properties["strength"]
@@ -307,17 +396,9 @@ class GameView(arcade.View):
             json.dump(save, file_out)
         self.stat_update()
 
-        self.pause = True
-        self.info = {}
-        with open("info.json", encoding="UTF-8") as file_in:
-            info = json.load(file_in)
-        self.info["RU"] = info[self.map_ID]
-        with open("info1.json", encoding="UTF-8") as file_in:
-            info = json.load(file_in)
-        self.info["EN"] = info[self.map_ID]
-        self.process_keychange1()
+        
+        
 
-        a = 0
         for i in self.scene.get_sprite_list("enemies"):
             if "patrolling" in i.properties:
                 i.position=[int(f) * self.scaling for f in i.properties["patrolling"].split()[i.properties["pointID"]].split(",")]
@@ -329,30 +410,12 @@ class GameView(arcade.View):
                 i.rgb = tuple(map(int, i.properties["rgb"].split()))
                 del i.properties["rgb"]
             i.properties["effects"] = {}
-        for i in self.scene.get_sprite_list("pickups"):
-            if "price" in i.properties.keys() and not(i.properties["in_chest"] or i.properties["in_inventory"]):
-                self.price_texts.append(arcade.Text(f"{i.properties['price']}¢", i.center_x - 5 * self.scaling, i.center_y + 10 * self.scaling))
-            if "rgb" in i.properties.keys():
-                i.rgb = tuple(map(int, i.properties["rgb"].split()))
-                del i.properties["rgb"]
-
-        for i in self.scene.get_sprite_list("chests"):
-            if "treasure" in i.properties.keys():
-                i.properties["content"] += i.properties["treasure"].split()[randrange(0, len(i.properties["treasure"].split()), 1)]
         
-        for i in self.scene.get_sprite_list("sp_doors"):
-            if "rgb" in i.properties.keys():
-                i.rgb = tuple(map(int, i.properties["rgb"].split()))
-                del i.properties["rgb"]
         self.soundtrack.stop(self.soundtrack_player)
-        aa = ["kevin macleoid/Scheming-Weasel-faster0.mp3", "kevin macleoid/Hitman1.mp3", "kevin macleoid/Ibn-Al-Noor2.mp3", "kevin macleoid/Come-Play-with-Me3.mp3", "kevin macleoid/Day-of-Chaos4.mp3", "sounds/bossfigth_song1.mp3"]
+        """aa = ["kevin macleoid/Scheming-Weasel-faster0.mp3", "kevin macleoid/Hitman1.mp3", "kevin macleoid/Ibn-Al-Noor2.mp3", "kevin macleoid/Come-Play-with-Me3.mp3", "kevin macleoid/Day-of-Chaos4.mp3", "sounds/bossfigth_song1.mp3"]
         self.soundtrack = arcade.load_sound(aa[self.map_ID])
-        self.soundtrack_player = self.soundtrack.play(0.3, loop=True)
-        if self.map_ID == 5:
-            self.boss_hp = generate_sprite(self.textures.get_sprite_list("textures")[49], SCREEN_WIDTH/2, 20, self.scaling)
-            self.boss_hp.scale_x = 60*self.scaling
-            self.boss_hp.rgb = (255, 0, 0)
-            self.icons.append(self.boss_hp)
+        self.soundtrack_player = self.soundtrack.play(0.3, loop=True)"""
+        
         
     def on_draw(self):
         self.clear()
@@ -382,12 +445,11 @@ class GameView(arcade.View):
                 if not self.inventory[0].properties["selected"]:                
                     self.inventory[index].properties["selected"] = False
                     self.inventory[index - 1].properties["selected"] = True
-                    self.mark.center_y += 30
             elif self.e_pressed and not self.q_pressed:
                 if not self.inventory[-1].properties["selected"]:
                     self.inventory[index].properties["selected"] = False
                     self.inventory[index + 1].properties["selected"] = True
-                    self.mark.center_y -= 30
+            self.mark.center_y = [i for i in self.inventory if i.properties["selected"]][0].center_y
 
             #Контроль активного слота в сундуке
             if len(self.in_chest) > 0:
@@ -410,10 +472,10 @@ class GameView(arcade.View):
 
                 #визуализация выбранного слота в сундуке
                 spart = self.in_chest[self.in_chest.index([i for i in self.in_chest if i.properties["selected"]][0])]
-                spart.scale = 2
+                spart.scale = 1.2*self.scaling
                 for i in self.in_chest:
                     if i != spart:
-                        i.scale = 1.5
+                        i.scale = self.scaling
 
             #копание в сундуке
             if self.todo and len(self.in_chest) > 0:
@@ -595,15 +657,15 @@ class GameView(arcade.View):
             self.wall_list.alpha = 120
             self.batch = []
             for i, a in enumerate(self.info[self.info_language]):
-                text = arcade.Text(a, 0, SCREEN_HEIGHT-20-i*16*self.scaling, font_size=7.7*self.scaling)
+                text = arcade.Text(a, 0, self.height-20-i*16*self.scaling, font_size=7.7*self.scaling)
                 self.batch.append(text)
             for i, a in enumerate(["strength", "agility", "max_hitpoints", "movespeed"]):
-                text = arcade.Text(f"{a.replace('_', ' ')}:{self.player_sprite.properties[a]+self.bonus_stats[a]}", 0, SCREEN_HEIGHT-20-(i+len(self.info[self.info_language]))*16*self.scaling, font_size=7.7*self.scaling, color=[arcade.color.RED, arcade.color.GREEN][i%2])
+                text = arcade.Text(f"{a.replace('_', ' ')}:{self.player_sprite.properties[a]+self.bonus_stats[a]}", 0, self.height-20-(i+len(self.info[self.info_language]))*16*self.scaling, font_size=7.7*self.scaling, color=[arcade.color.RED, arcade.color.GREEN][i%2])
                 self.batch.append(text)
             if [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] == "weapon":
-                self.batch.append(arcade.Text(f'damage:{[i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["damage"]}', 0, SCREEN_HEIGHT-20-(len(self.info[self.info_language])+4)*16*self.scaling, font_size=7.7*self.scaling))
-                self.batch.append(arcade.Text(f'cooldown:{[i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["qldown"]}', 0, SCREEN_HEIGHT-20-(len(self.info[self.info_language])+5)*16*self.scaling, font_size=7.7*self.scaling))
-                self.batch.append(arcade.Text(f'total damage:{[i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["damage"] * (self.player_sprite.properties[a]+self.bonus_stats[a])}', 0, SCREEN_HEIGHT-20-(len(self.info[self.info_language])+6)*16*self.scaling, font_size=7.7*self.scaling, color=arcade.color.RED))
+                self.batch.append(arcade.Text(f'damage:{[i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["damage"]}', 0, self.height-20-(len(self.info[self.info_language])+4)*16*self.scaling, font_size=7.7*self.scaling))
+                self.batch.append(arcade.Text(f'cooldown:{[i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["qldown"]}', 0, self.height-20-(len(self.info[self.info_language])+5)*16*self.scaling, font_size=7.7*self.scaling))
+                self.batch.append(arcade.Text(f'total damage:{[i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["damage"] * (self.player_sprite.properties[a]+self.bonus_stats[a])}', 0, self.height-20-(len(self.info[self.info_language])+6)*16*self.scaling, font_size=7.7*self.scaling, color=arcade.color.RED))
             if self.shift_pressed and self.alt_pressed:
                 if self.info_language == "RU":
                     self.info_language = "EN"
@@ -684,6 +746,12 @@ class GameView(arcade.View):
         self.process_keychange1()
 
     def on_update(self, delta_time):       
+        self.camera.use()
+        if not self.resizing and self.resized:
+            self.player_sprite.center_x /= self.scaling
+            self.player_sprite.center_y /= self.scaling
+            self.loading(re=True)
+        self.resizing = False
         if not (self.Gameover or self.pause):
             self.Gameover_text.text = ""
             self.physics_engine.update()
@@ -1303,13 +1371,14 @@ class GameView(arcade.View):
                         self.opened_chest = [i for i in self.inventory if i.properties["selected"]][0].properties["content"]
                         arcade.load_sound(ASSETS_PATH / "sounds/open_bag.mp3").play()
                     for i in range(self.opened_chest.properties["slots"]):
-                        chest_part = generate_sprite(self.textures.get_sprite_list("textures")[1], 50 + i % 10 * 30, (SCREEN_HEIGHT - 30) - i // 10 * 30, 1.5)
+                        chest_part = generate_sprite(self.textures.get_sprite_list("textures")[1], 50 + i % 10 * 20*self.scaling, (self.height - 20*self.scaling) - i // 10 * 20*self.scaling, self.scaling)
                         chest_part.properties["selected"] = False
                         if i + 1 > len(self.opened_chest.properties["content"].split()):
                             chest_part.properties["content"] = 0
                         else:
                             chest_content = self.decode_item(self.opened_chest.properties["content"].split()[i])
                             chest_content.position = chest_part.position
+                            chest_content.scale = self.scaling
                             self.scene.get_sprite_list("pickups").append(chest_content)
                             chest_part.properties["content"] = chest_content
                         self.in_chest.append(chest_part)
@@ -1383,9 +1452,13 @@ class GameView(arcade.View):
         elif self.Gameover:
             self.Gameover_text.text = "You win!"
             self.boss_hp.scale = 0    
+    
+    def on_resize(self, width, height):
+        self.resizing = True
+        self.resized = True
 
 def main():
-    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT)
+    window = GameWindow(SCREEN_WIDTH, SCREEN_HEIGHT, resizable=True)
     game = GameView()
     game.setup()
     window.show_view(game)

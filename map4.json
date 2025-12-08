@@ -488,7 +488,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1disposable\/t:18#sbuffs:movespeed&0.1=hitpoints&120#bin_inventory:False#bin_chest:True#sname:cheese#"
+                         "value":"1spkey\/t:18#bin_inventory:False#bin_chest:True#sname:cheese#ispid:999"
                         }, 
                         {
                          "name":"damage",
@@ -1418,7 +1418,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1passive\/t:44#bin_inventory:False#sbuffs:strength&1=agility&1#bin_chest:True#sname:Shining_crown#"
+                         "value":"1passive\/t:43#bin_inventory:False#sbuffs:strength&1=agility&1#bin_chest:True#sname:Shining_crown#"
                         }, 
                         {
                          "name":"damage",
@@ -2761,7 +2761,7 @@
                         {
                          "name":"treasure",
                          "type":"string",
-                         "value":"1staff\/t:28#sname:staff_of_stun#bin_inventory:False#ilastcast:-10#ispellid:1#iqldown:10#bin_chest:True# 1passive\/t:47#sname:amulet_of_sun#sbuffs:hp_reg&5#bin_chest:True#bin_inventory:False# 1passive\/t:31#sname:shield#sbuffs:armor&30#bin_chest:True#bin_inventory:False#"
+                         "value":"1staff\/t:28#sname:staff_of_stun#bin_inventory:False#ilastcast:-10#ispellid:1#iqldown:10#bin_chest:True# 1passive\/t:46#sname:amulet_of_sun#sbuffs:hp_reg&5#bin_chest:True#bin_inventory:False# 1passive\/t:31#sname:shield#sbuffs:armor&30#bin_chest:True#bin_inventory:False#"
                         }],
                  "rotation":0,
                  "type":"",
@@ -2779,7 +2779,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1passive\/t:48#sname:quiver#bin_inventory:False#sbuffs:agility&0.5#bin_chest:True#"
+                         "value":"1passive\/t:47#sname:quiver#bin_inventory:False#sbuffs:agility&0.5#bin_chest:True#"
                         }, 
                         {
                          "name":"locked",
