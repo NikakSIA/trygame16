@@ -1096,8 +1096,18 @@
  "tileheight":16,
  "tilesets":[
         {
+         "columns":49,
          "firstgid":1,
-         "source":"..\/..\/maps\/117.tsx"
+         "image":"..\/..\/tiles\/first tiles\/Tilesheet\/colored-transparent_packed.png",
+         "imageheight":352,
+         "imagewidth":784,
+         "margin":0,
+         "name":"117",
+         "spacing":0,
+         "tilecount":1078,
+         "tileheight":16,
+         "tilewidth":16,
+         "transparentcolor":"#ff00ff"
         }],
  "tilewidth":16,
  "type":"map",

@@ -193,12 +193,32 @@
  "tileheight":16,
  "tilesets":[
         {
+         "columns":49,
          "firstgid":1,
-         "source":"..\/..\/maps\/116.tsx"
+         "image":"colored_packed.png",
+         "imageheight":352,
+         "imagewidth":784,
+         "margin":0,
+         "name":"116",
+         "spacing":0,
+         "tilecount":1078,
+         "tileheight":16,
+         "tilewidth":16,
+         "transparentcolor":"#ff00ff"
         }, 
         {
+         "columns":49,
          "firstgid":1079,
-         "source":"..\/..\/maps\/117.tsx"
+         "image":"colored-transparent_packed.png",
+         "imageheight":352,
+         "imagewidth":784,
+         "margin":0,
+         "name":"117",
+         "spacing":0,
+         "tilecount":1078,
+         "tileheight":16,
+         "tilewidth":16,
+         "transparentcolor":"#ff00ff"
         }],
  "tilewidth":16,
  "type":"map",
