@@ -719,7 +719,7 @@
         {
          "columns":49,
          "firstgid":1,
-         "image":"..\/..\/tiles\/first tiles\/Tilesheet\/colored-transparent_packed.png",
+         "image":"tiles/colored-transparent_packed.png",
          "imageheight":352,
          "imagewidth":784,
          "margin":0,
