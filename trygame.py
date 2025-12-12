@@ -1,4 +1,4 @@
-#{"mapID": 0, "pos": [65, 15], "hp": 100, "inv": [], "bag": "", "max_hp": 100, "stren": 1, "agil": 1, "ms": 1, "arm": 0}
+#{"mapID": 0, "pos": [65, 15], "hp": 100, "inv": [], "bag": "", "max_hp": 100, "stren": 1, "agil": 1, "ms": 1, "arm": 0} стартовый сейв
 import arcade
 from random import randrange
 import pathlib
@@ -30,7 +30,8 @@ def generate_sprite(t, x, y, s):
     a.scale = s
     return a
 
-ASSETS_PATH = pathlib.Path(__file__).resolve().parent.parent / "trygame16"
+ASSETS_PATH = pathlib.Path.cwd()
+print(pathlib.Path.cwd())
 SCREEN_WIDTH = 700#576
 SCREEN_HEIGHT = SCREEN_WIDTH
 
@@ -264,7 +265,6 @@ class GameView(arcade.View):
                         sprite.change_x /= self.scaling
                         sprite.change_y /= self.scaling
             for i in self.inventory:
-                print(self.scaling ,self.scaling*self.game_map.width/32)
                 i.center_x /= self.scaling*self.game_map.width/32
                 i.center_y /= self.scaling*self.game_map.width/32
             for i in self.icons:
@@ -312,6 +312,7 @@ class GameView(arcade.View):
         
 
         self.mark.position = ([i for i in self.inventory if i.properties["selected"]][0].center_x - 30, [i for i in self.inventory if i.properties["selected"]][0].center_y)
+        self.mark.scale_x = 0.015 * self.stamina * self.scaling*self.game_map.width/32
         self.hp_text = arcade.Text(str(self.player_sprite.properties["hitpoints"]), self.heart.center_x + 8*self.scaling*self.game_map.width/32, self.heart.center_y - 4*self.scaling*self.game_map.width/32, font_size=8*self.scaling*self.game_map.width/32)
         self.selected_inv_text = arcade.Text("", self.l - 3.5*self.scaling*self.game_map.width/32, self.l - 147*self.scaling*self.game_map.width/32, font_size=8*self.scaling*self.game_map.width/32, anchor_x="right")
         self.damage_text = arcade.Text("", 0, 0, font_size=int(10*self.scaling))
@@ -741,6 +742,7 @@ class GameView(arcade.View):
         elif key == arcade.key.TAB:
             self.pause = not(self.pause)
             arcade.load_sound(ASSETS_PATH / "sounds/pause.mp3").play(self.sound_volume)
+            self.walk("stand")
         self.process_keychange1()
     def on_key_release(self, key, modifiers):
         if key == arcade.key.W:
@@ -820,7 +822,7 @@ class GameView(arcade.View):
                 self.stamina += 0.4
                 if self.stamina > 100: 
                     self.stamina = 100
-            self.mark.scale_x = 0.02 * self.stamina
+            self.mark.scale_x = 0.015 * self.stamina * self.scaling*self.game_map.width/32
             
             #звук бега
             if self.player_sprite.change_x == 0 and self.player_sprite.change_y == 0:
@@ -1484,7 +1486,6 @@ class GameView(arcade.View):
             self.boss_hp.scale = 0    
     
     def on_resize(self, width, height):
-        print(1)
         self.resizing = True
         self.resized = True
 
