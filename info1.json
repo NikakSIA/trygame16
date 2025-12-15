@@ -19,7 +19,11 @@
         "Goblins and their pet golem will try to keep you out.",
         "Maybe you can find something here that will help you deal with them.",
         "To use weapons, the arrow keys (UP, DOWN, LEFT, RIGHT) will do.",
+        "Some weapons can be sold for coins, you can't just pick them up.",
         "By the way, keys open not only doors but some chests too.",
+        "To open the chest, use Space to dig in it - (UP, DOWN, LEFT, RIGHT)",
+        "To get a thing out of there - Space, and to exit - ENTER",
+        "Be careful! While you're digging in the chest, you can't fight.",
         "There should be a bag here. Pick it up so you don’t have to carry everything in your hands.",
         "And be careful with those strange hooded guys:",
         "they can give you coins, but… at a certain price."

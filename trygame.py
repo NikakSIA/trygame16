@@ -31,13 +31,13 @@ def generate_sprite(t, x, y, s):
     return a
 
 ASSETS_PATH = pathlib.Path.cwd()
-print(pathlib.Path.cwd())
 SCREEN_WIDTH = 700#576
 SCREEN_HEIGHT = SCREEN_WIDTH
 
 class GameWindow(arcade.Window):
     def on_key_press(self, symbol, modifiers):
         if symbol == arcade.key.F:
+            self.set_mouse_visible(self.fullscreen)
             self.set_fullscreen(fullscreen=not(self.fullscreen))
 
 
@@ -72,12 +72,12 @@ class GameView(arcade.View):
         self.Gameover_text = arcade.Text("", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, anchor_x="center", anchor_y="center", font_size=60)
         self.ms_modifer = 1
         self.stamina = 100
-        self.stamina_sound = arcade.load_sound("sounds/stamina.mp3")
+        self.stamina_sound = arcade.load_sound(ASSETS_PATH / "sounds/stamina.mp3")
         self.stamina_player = self.stamina_sound.play(loop=True, volume=0)
         self.palyer_movetype = "stand"
-        self.walk_sound = arcade.load_sound("sounds/walk2.mp3")
+        self.walk_sound = arcade.load_sound(ASSETS_PATH / "sounds/walk2.mp3")
         self.sound_player = self.walk_sound.play(loop=True, volume=0)
-        self.soundtrack = arcade.load_sound("kevin macleoid/Scheming-Weasel-faster0.mp3")
+        self.soundtrack = arcade.load_sound(ASSETS_PATH / "kevin macleoid/Scheming-Weasel-faster0.mp3")
         self.soundtrack_player = self.soundtrack.play(0, loop=True)
         self.sound_volume = 1
         self.music_volume = 1
@@ -311,12 +311,12 @@ class GameView(arcade.View):
         self.player_sprite.center_y *= self.scaling
         
 
-        self.mark.position = ([i for i in self.inventory if i.properties["selected"]][0].center_x - 30, [i for i in self.inventory if i.properties["selected"]][0].center_y)
+        self.mark.position = ([i for i in self.inventory if i.properties["selected"]][0].center_x - 20 * self.scaling*self.game_map.width/32, [i for i in self.inventory if i.properties["selected"]][0].center_y)
         self.mark.scale_x = 0.015 * self.stamina * self.scaling*self.game_map.width/32
         self.hp_text = arcade.Text(str(self.player_sprite.properties["hitpoints"]), self.heart.center_x + 8*self.scaling*self.game_map.width/32, self.heart.center_y - 4*self.scaling*self.game_map.width/32, font_size=8*self.scaling*self.game_map.width/32)
         self.selected_inv_text = arcade.Text("", self.l - 3.5*self.scaling*self.game_map.width/32, self.l - 147*self.scaling*self.game_map.width/32, font_size=8*self.scaling*self.game_map.width/32, anchor_x="right")
         self.damage_text = arcade.Text("", 0, 0, font_size=int(10*self.scaling))
-        self.minus_hp_text = arcade.Text("", self.heart.center_x + 10, self.heart.center_y - 15, font_size=int(10*self.scaling))
+        self.minus_hp_text = arcade.Text("", self.heart.center_x + 6*self.scaling*self.game_map.width/32, self.heart.center_y - 12*self.scaling*self.game_map.width/32, font_size=int(9*self.scaling*self.game_map.width/32))
 
 
         self.wall_list = arcade.SpriteList()
@@ -407,10 +407,7 @@ class GameView(arcade.View):
         with open("save.json", "w") as file_out:
             json.dump(save, file_out)
         self.stat_update()
-
         
-        
-
         for i in self.scene.get_sprite_list("enemies"):
             if "patrolling" in i.properties:
                 i.position=[int(f) * self.scaling for f in i.properties["patrolling"].split()[i.properties["pointID"]].split(",")]
@@ -425,7 +422,7 @@ class GameView(arcade.View):
         
         self.soundtrack.stop(self.soundtrack_player)
         aa = ["kevin macleoid/Scheming-Weasel-faster0.mp3", "kevin macleoid/Hitman1.mp3", "kevin macleoid/Ibn-Al-Noor2.mp3", "kevin macleoid/Come-Play-with-Me3.mp3", "kevin macleoid/Day-of-Chaos4.mp3", "sounds/bossfigth_song1.mp3"]
-        self.soundtrack = arcade.load_sound(aa[self.map_ID])
+        self.soundtrack = arcade.load_sound(ASSETS_PATH / aa[self.map_ID])
         self.soundtrack_player = self.soundtrack.play(0.3, loop=True)
         
         
@@ -665,12 +662,14 @@ class GameView(arcade.View):
         #пауза
         if self.pause:
             for i in self.scene._sprite_lists:
-                i.alpha = 120
-            self.wall_list.alpha = 120
+                i.alpha = 60
+            self.wall_list.alpha = 60
+            self.icons.alpha = 60
+            self.player_sprite.alpha = 155
             #вывод текста
             self.batch = []
             for i, a in enumerate(self.info[self.info_language]):
-                text = arcade.Text(a, 0, self.height-20-i*16*self.scaling*self.game_map.width/32, font_size=7.7*self.scaling*self.game_map.width/32)
+                text = arcade.Text(a, self.l/2, self.height-20-i*16*self.scaling*self.game_map.width/32, font_size=7.7*self.scaling*self.game_map.width/32, anchor_x="center")
                 self.batch.append(text)
             #вывод статистики
             for i, a in enumerate(["strength", "agility", "max_hitpoints", "movespeed"]):
@@ -707,6 +706,8 @@ class GameView(arcade.View):
             for i in self.scene._sprite_lists:
                 i.alpha = 255
             self.wall_list.alpha = 255
+            self.icons.alpha = 255
+            self.player_sprite.alpha = 255
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.W:
@@ -922,6 +923,7 @@ class GameView(arcade.View):
                 if self.player_sprite.properties["hitpoints"] <= 0:
                     self.player_sprite.remove_from_sprite_lists()
                     self.Gameover = True 
+                    self.soundtrack.stop(self.soundtrack_player)
                     arcade.load_sound(ASSETS_PATH / "sounds/gameover.mp3").play(1.5*self.sound_volume)
                     arcade.load_sound(ASSETS_PATH / "sounds/gameover1.mp3").play(self.sound_volume)
 
@@ -1115,7 +1117,7 @@ class GameView(arcade.View):
                                     shot.change_y = down * abs(enemy.center_y - self.player_sprite.center_y) / (range_to_player / enemy.properties["movespeed"]) / 1.5 * self.scaling
                                     self.scene.get_sprite_list("enemies").append(shot)
                         if "necromancy" in enemy.properties["mods"].split() and self.timer - 7 > enemy.properties["lastshotat"]:
-                            arcade.load_sound(ASSETS_PATH/"sounds/boner1").play(self.sound_volume)
+                            arcade.load_sound(ASSETS_PATH/"sounds/boner1.mp3").play(self.sound_volume)
                             enemy.properties["lastshotat"] = self.timer
                             for i in range((1*"double" in enemy.properties["mods"].split()) + 1):
                                 boner = generate_sprite(self.textures.get_sprite_list("textures")[20], enemy.center_x-i*20*self.scaling, enemy.center_y, self.scaling)
@@ -1381,6 +1383,10 @@ class GameView(arcade.View):
                                     flag = True
                             if not flag:
                                 i.text = ""
+                else:
+                    arcade.load_sound(ASSETS_PATH / "sounds/NO.mp3").play(self.sound_volume*0.6)
+                    self.minus_hp_text.text = "I cant buy that!"
+                    self.minus_hp_update_time = self.timer
 
             #открытие сундука
             chest_hit = arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("chests"))
@@ -1435,7 +1441,9 @@ class GameView(arcade.View):
                     chest_hit[0].remove_from_sprite_lists()
                     self.scene.get_sprite_list("enemies").append(mimic)
                 elif chest_hit != []:
-                    arcade.load_sound(ASSETS_PATH / "sounds/NO.mp3").play(self.sound_volume)
+                    arcade.load_sound(ASSETS_PATH / "sounds/NO.mp3").play(self.sound_volume*0.6)
+                    self.minus_hp_text.text = "I cant open that!"
+                    self.minus_hp_update_time = self.timer
             #закрытие сундука        
             if self.enter_pressed and len(self.in_chest) > 0:
                 content = ""
@@ -1481,10 +1489,12 @@ class GameView(arcade.View):
         
         if self.Gameover and len(self.scene.get_sprite_list("enemies")) != 0:
             self.Gameover_text.text = "Game over!"
+            self.walk("stand")
         elif self.Gameover:
             self.Gameover_text.text = "You win!"
+            self.walk("stand")
             self.boss_hp.scale = 0    
-    
+        
     def on_resize(self, width, height):
         self.resizing = True
         self.resized = True

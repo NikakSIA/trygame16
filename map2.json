@@ -240,7 +240,7 @@
                         {
                          "name":"name",
                          "type":"string",
-                         "value":"Spetial_key"
+                         "value":"Special_key"
                         }, 
                         {
                          "name":"price",
@@ -2100,7 +2100,7 @@
         {
          "columns":49,
          "firstgid":1,
-         "image":"tiles/colored_packed.png",
+         "image":"tiles\/colored_packed.png",
          "imageheight":352,
          "imagewidth":784,
          "margin":0,
@@ -2114,7 +2114,7 @@
         {
          "columns":49,
          "firstgid":1079,
-         "image":"tiles/colored-transparent_packed.png",
+         "image":"tiles\/colored-transparent_packed.png",
          "imageheight":352,
          "imagewidth":784,
          "margin":0,
