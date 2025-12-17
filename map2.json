@@ -1906,7 +1906,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1weapon\/t:12#idamage:8#bin_inventory:False#bin_chest:True#fqldown:0.3#sclass:melee#sname:iron_sword"
+                         "value":"1weapon\/t:12#idamage:7#bin_inventory:False#bin_chest:True#fqldown:0.5#sclass:melee#sname:iron_sword"
                         }, 
                         {
                          "name":"damage",
@@ -2091,7 +2091,7 @@
          "y":0
         }],
  "nextlayerid":14,
- "nextobjectid":83,
+ "nextobjectid":84,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.11.2",

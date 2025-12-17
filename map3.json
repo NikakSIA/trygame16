@@ -46,7 +46,7 @@
         }, 
         {
          "compression":"zlib",
-         "data":"eJxjYKAP0GSjk0WjACuQYh9oF4wCUgC++CJXbrCBgXBrHBHlkAQ7BI+CoQ3oUedgS09DKQ9SM52TYxa17MeXZ\/HFx2g+HwX0BKPt4KEFYGXHUCrTcQFS\/HCIlYHhMBYMFG+gmQMpBNZA99ngwNZo7j4MzIc6rAwJA+NSygGuuGxix8T4AAAVkBA8",
+         "data":"eJxjYKAP0GSjk0WjACuQYh9oFwxuEMcGwdSUowTgiy9y5QYbQHYrrcIRHRBjhwQ7BI+CoQ3oUedgS09DKQ9SM52TYxa17MeXZ\/HFBy3zOT3Ks1EwtMBoO3hoAVjZMZTKdFyAFD8cYmVgOIwFA8UbaOZACoE10H02OLA1mrsPA\/OhDitDwsC4lHKAKy6b2DExPgAAwvETwA==",
          "encoding":"base64",
          "height":32,
          "id":4,
@@ -454,7 +454,7 @@
                  "type":"",
                  "visible":true,
                  "width":16,
-                 "x":224,
+                 "x":208,
                  "y":208
                 }, 
                 {
@@ -877,7 +877,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1spkey\/t:34#bin_chest:True#bin_inventory:False#ispid:5#"
+                         "value":"1spkey\/t:34#bin_chest:True#bin_inventory:False#ispid:5#sname:magic_bone#"
                         }, 
                         {
                          "name":"damage",
@@ -925,7 +925,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1passive\/t:38#sbuffs:movespeed&0.1#bin_chest:False#sname:boots#bin_inventory:False#"
+                         "value":"1passive\/t:50#sbuffs:movespeed&0.1#bin_chest:False#sname:boots#bin_inventory:False#"
                         }, 
                         {
                          "name":"damage",
@@ -1937,7 +1937,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1spkey\/t:43#bin_chest:True#ispid:9#bin_inventory:False#"
+                         "value":"1spkey\/t:42#bin_chest:True#ispid:9#bin_inventory:False#sname:crystal"
                         }, 
                         {
                          "name":"damage",
@@ -2581,7 +2581,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1weapon\/t:39#sclass:melee#smods:stun#fqldown:0.9#bin_inventory:False#idamage:15#bin_chest:True#sname:hammer#"
+                         "value":"1weapon\/t:38#sclass:melee#smods:stun#fqldown:0.9#bin_inventory:False#idamage:15#bin_chest:True#sname:hammer#"
                         }, 
                         {
                          "name":"locked",
@@ -2609,7 +2609,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1staff\/t:40#ilastcast:-30#iqldown:30#bin_inventory:False#ispellid:3#sname:helm_of_rage#bin_chest:True#"
+                         "value":"1staff\/t:39#ilastcast:-30#iqldown:30#bin_inventory:False#ispellid:3#sname:helm_of_rage#bin_chest:True#"
                         }, 
                         {
                          "name":"locked",
@@ -2637,7 +2637,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1staff\/t:41#sname:book_of_knowledge#ispellid:4#bin_chest:True#bin_inventory:False#ilastcast:-20#iqldown:20#"
+                         "value":"1staff\/t:40#sname:book_of_knowledge#ispellid:4#bin_chest:True#bin_inventory:False#ilastcast:-20#iqldown:20#"
                         }, 
                         {
                          "name":"locked",
@@ -3683,7 +3683,7 @@
         {
          "columns":49,
          "firstgid":1,
-         "image":"tiles/colored_packed.png",
+         "image":"tiles\/colored_packed.png",
          "imageheight":352,
          "imagewidth":784,
          "margin":0,
@@ -3697,7 +3697,7 @@
         {
          "columns":49,
          "firstgid":1079,
-         "image":"tiles/colored-transparent_packed.png",
+         "image":"tiles\/colored-transparent_packed.png",
          "imageheight":352,
          "imagewidth":784,
          "margin":0,
