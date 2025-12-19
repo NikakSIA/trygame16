@@ -3269,7 +3269,7 @@
          "y":0
         }],
  "nextlayerid":11,
- "nextobjectid":98,
+ "nextobjectid":176,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.11.2",
@@ -3278,7 +3278,7 @@
         {
          "columns":49,
          "firstgid":1,
-         "image":"tiles/colored_packed.png",
+         "image":"tiles\/colored_packed.png",
          "imageheight":352,
          "imagewidth":784,
          "margin":0,
@@ -3292,7 +3292,7 @@
         {
          "columns":49,
          "firstgid":1079,
-         "image":"tiles/colored-transparent_packed.png",
+         "image":"tiles\/colored-transparent_packed.png",
          "imageheight":352,
          "imagewidth":784,
          "margin":0,

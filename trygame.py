@@ -35,10 +35,27 @@ SCREEN_WIDTH = 700#576
 SCREEN_HEIGHT = SCREEN_WIDTH
 
 class GameWindow(arcade.Window):
-    def on_key_press(self, symbol, modifiers):
-        if symbol == arcade.key.F:
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.F:
             self.set_mouse_visible(self.fullscreen)
             self.set_fullscreen(fullscreen=not(self.fullscreen))
+        elif key == 65505:
+            self.shift_pressed = True
+        elif key == arcade.key.R:
+            self.r_pressed = True
+        elif key == arcade.key.LCTRL:
+            self.ctrl_pressed = True
+        if all([self.shift_pressed, self.r_pressed, self.ctrl_pressed]):
+            with open("save.json", "w") as file_out:
+                json.dump({"mapID": 0, "pos": [65, 15], "hp": 100, "inv": [], "bag": "", "max_hp": 100, "stren": 1, "agil": 1, "ms": 1, "arm": 0, "timer": 0}, file_out)
+            self.close()
+    def on_key_release(self, key, modifiers):
+        if key == 65505:
+            self.shift_pressed = False
+        elif key == arcade.key.R:
+            self.r_pressed = False
+        elif key == arcade.key.LCTRL:
+            self.ctrl_pressed = False
 
 
 class GameView(arcade.View):
@@ -46,6 +63,7 @@ class GameView(arcade.View):
 
     def __init__(self):
         super().__init__()
+        self.aaa = []
         self.scaling = 1
         self.pause = True
         self.a_pressed = False
@@ -80,8 +98,7 @@ class GameView(arcade.View):
         self.soundtrack = arcade.load_sound(ASSETS_PATH / "kevin macleoid/Scheming-Weasel-faster0.mp3")
         self.soundtrack_player = self.soundtrack.play(0, loop=True)
         self.sound_volume = 1
-        self.music_volume = 1
-        self.timer = 0
+        self.music_volume = 1     
         self.oldtime = 0
         self.oldtime1 = 0        
         self.change_melee_attack_x = 0
@@ -94,7 +111,7 @@ class GameView(arcade.View):
             save = json.load(file_in)
         self.map_ID = save["mapID"]
         self.save_inv = [save["inv"], save["bag"]]
-        
+        self.timer = save["timer"]
         self.textures = arcade.Scene.from_tilemap(arcade.load_tilemap(str(ASSETS_PATH / "textures.tmj"), self.scaling))
         self.enemy_groups = arcade.Scene.from_tilemap(arcade.load_tilemap(str(ASSETS_PATH / "enemy_groups.json"), self.scaling))
         self.player_list = arcade.SpriteList()
@@ -182,7 +199,7 @@ class GameView(arcade.View):
             self.soundtrack.stop(self.soundtrack_player)
             arcade.load_sound(ASSETS_PATH / "sounds/you_win.mp3").play(self.sound_volume)
             with open("save.json", "w") as file_out:
-                json.dump({"mapID": 0, "pos": [65, 15], "hp": 100, "inv": [], "bag": "", "max_hp": 100, "stren": 1, "agil": 1, "ms": 1, "arm": 0}, file_out)
+                json.dump({"mapID": 0, "pos": [65, 15], "hp": 100, "inv": [], "bag": "", "max_hp": 100, "stren": 1, "agil": 1, "ms": 1, "arm": 0, "timer": 0}, file_out)
         enemy.remove_from_sprite_lists()
 
     def spawn_enemy_without_collisions(self, enemy, hash={}):
@@ -325,7 +342,6 @@ class GameView(arcade.View):
         self.damage_text = arcade.Text("", 0, 0, font_size=int(10*self.scaling))
         self.minus_hp_text = arcade.Text("", self.heart.center_x + 6*self.scaling*self.game_map.width/32, self.heart.center_y - 12*self.scaling*self.game_map.width/32, font_size=int(9*self.scaling*self.game_map.width/32))
 
-
         self.wall_list = arcade.SpriteList()
         self.wall_list.extend(self.scene.get_sprite_list("walls"))
         self.wall_list.extend(self.scene.get_sprite_list("doors"))
@@ -395,7 +411,7 @@ class GameView(arcade.View):
                 self.scene.get_sprite_list("pickups").append(a)
                 self.inventory[i].properties["content"] = a
             self.save_inv.clear()
-        save = {"mapID": self.map_ID, "pos": [self.player_sprite.center_x / self.scaling, self.player_sprite.center_y / self.scaling], "hp": self.player_sprite.properties["hitpoints"], "inv":[], "bag": ""}
+        save = {"mapID": self.map_ID, "pos": [self.player_sprite.center_x / self.scaling, self.player_sprite.center_y / self.scaling], "hp": self.player_sprite.properties["hitpoints"], "inv":[], "bag": "", "timer": self.timer}
         save["max_hp"] = self.player_sprite.properties["max_hitpoints"]
         save["stren"] = self.player_sprite.properties["strength"]
         save["agil"] = self.player_sprite.properties["agility"]
@@ -1053,8 +1069,12 @@ class GameView(arcade.View):
             
             #движение врага
             for enemy in self.scene.get_sprite_list("enemies"):
+                if enemy.properties["movement"] == "stand" and not "summoner" in enemy.properties["mods"].split():
+                    continue
                 if enemy.properties["movement"] in ["simple", "jerker"] and (("friendly" in enemy.properties["mods"].split() and enemy.properties["opponent"] == 0) or "friendly" not in enemy.properties["mods"].split()) and not ("melee" in enemy.properties["mods"].split() and enemy.properties["isattack"]):
                     range_to_player = on_range(enemy.center_x, enemy.center_y, self.player_sprite.center_x, self.player_sprite.center_y)
+                    if range_to_player > enemy.properties["vision"] * self.scaling and not "patrolling" in enemy.properties.keys():
+                        continue
                     if enemy.center_x > self.player_sprite.center_x:
                         left = -1
                     else:
@@ -1063,7 +1083,7 @@ class GameView(arcade.View):
                         down = -1
                     else:
                         down = 1
-                    if range_to_player < enemy.properties["vision"] * self.scaling and not arcade.check_for_collision_with_list(enemy, self.player_list) and not enemy.properties["sees_player"] and self.timer - enemy.properties["lastreaction"] >= 1:   
+                    if not enemy.properties["sees_player"] and self.timer - enemy.properties["lastreaction"] >= 1 and not arcade.check_for_collision_with_list(enemy, self.player_list) :   
                         enemy.properties["lastreaction"] = self.timer
                         flag = True
                         self.point.center_x = enemy.center_x
@@ -1164,7 +1184,7 @@ class GameView(arcade.View):
                             attack.properties["damage"] = enemy.properties["damage"]
                             attack.properties["mods"] = "untouchable attack"
                             attack.properties["content"] = ""
-                            attack.properties["movement"] = "stand"
+                            attack.properties["movement"] = "line"
                             attack.properties["attacking"] = enemy
                             attack.properties["attackat"] = self.timer
                             self.scene.get_sprite_list("enemies").append(attack)
@@ -1189,7 +1209,7 @@ class GameView(arcade.View):
                             else:
                                 down = 1
                             enemy.change_x = left * abs(enemy.center_x - point[0]) / (on_range(enemy.center_x, enemy.center_y, point[0], point[1]) / (enemy.properties["movespeed"] * 0.8)) / 1.5 * self.scaling 
-                            enemy.change_y = down * abs(enemy.center_y - point[1]) / (on_range(enemy.center_x, enemy.center_y, point[0], point[1]) / (enemy.properties["movespeed"] * 0.8)) / 1.5 * self.scaling 
+                            enemy.change_y = down * abs(enemy.center_y - point[1]) / (on_range(enemy.center_x, enemy.center_y, point[0], point[1]) / (enemy.properties["movespeed"] * 0.8)) / 1.5 * self.scaling
                     else:
                         enemy.change_x = 0
                         enemy.change_y = 0
@@ -1475,7 +1495,7 @@ class GameView(arcade.View):
                 self.in_chest.clear() 
 
             #остывание игрока
-            if self.player_sprite.properties["rageat"] + 5 < self.timer and self.player_sprite.rgb == (255, 0, 0):
+            if self.player_sprite.properties["rageat"] + 10 < self.timer and self.player_sprite.rgb == (255, 0, 0):
                 self.player_sprite.rgb = arcade.color.WHITE
                 self.bonus_stats["strength"] -= 0.3
                 self.bonus_stats["movespeed"] -= 0.3
@@ -1496,16 +1516,17 @@ class GameView(arcade.View):
             if self.timer - self.damage_text_update_time > 0.5 and self.damage_text.text != "":
                 self.damage_text.text = ""
             if self.timer - self.minus_hp_update_time > 0.5 and self.minus_hp_text.text != "":
-                self.minus_hp_text.text = ""
-        
+                self.minus_hp_text.text = ""   
         if self.Gameover and len(self.scene.get_sprite_list("enemies")) != 0:
             self.Gameover_text.text = "Game over!"
+            self.Gameover_text.position = (self.l/2, self.l/2)
+            self.Gameover_text.font_size = 35*self.scaling/32*self.game_map.width
             self.walk("stand")
         elif self.Gameover:
-            self.Gameover_text.text = "You win!"
+            self.Gameover_text.text = f"You win! (in {round(self.timer, 2)})"
             self.walk("stand")
             self.boss_hp.scale = 0    
-        
+
     def on_resize(self, width, height):
         self.resizing = True
         self.resized = True

@@ -3,8 +3,7 @@
         "Greetings, Adventurer! Your goal is to reach the dungeon ahead of you.",
         "To do that, you need to unlock the door.",
         "Conveniently, there's a key nearby made exactly for such tasks.",
-        "There’s also a guard at the door who might get in your way.",
-        "Try to avoid running into him.",
+        "There’s also a guard at the door who might get in your way. Try to avoid running into him.",
         "Use 'WASD' to move around.",
         "Use 'Space' to interact with objects (pick up a key or open a door).",
         "Use 'Tab' to exit or return to this menu.",
@@ -12,6 +11,7 @@
         "For fullscreen mode, press 'F'",
         "To increase/decrease the volume of sounds, use 'UP' and 'DOWN' in this menu",
         "To increase/decrease the volume of music, use 'RIGHT' and 'LEFT' in this menu",
+        "Progress is saved at the beginning of each level, to start over, press the combination SHIFT+CTRL+R",
         "Good luck!"
     ],
     [
