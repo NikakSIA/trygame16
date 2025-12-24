@@ -2690,7 +2690,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1spkey\/t:21#bin_inventory:False#bin_chest:True#ispid:5#sname:shining_key"
+                         "value":"1spkey\/t:21#bin_inventory:False#bin_chest:True#ispid:5#sname:shining_key#"
                         }, 
                         {
                          "name":"locked",

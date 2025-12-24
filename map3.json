@@ -1937,7 +1937,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1spkey\/t:42#bin_chest:True#ispid:9#bin_inventory:False#sname:crystal"
+                         "value":"1spkey\/t:42#bin_chest:True#ispid:9#bin_inventory:False#sname:crystal#"
                         }, 
                         {
                          "name":"damage",
@@ -2581,7 +2581,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1weapon\/t:38#sclass:melee#smods:stun#fqldown:0.9#bin_inventory:False#idamage:15#bin_chest:True#sname:hammer#"
+                         "value":"1weapon\/t:38#sclass:melee#smods:stun#fqldown:0.9#bin_inventory:False#idamage:15#bin_chest:True#sname:heavy_hammer#"
                         }, 
                         {
                          "name":"locked",
@@ -3073,7 +3073,7 @@
                         {
                          "name":"damage",
                          "type":"float",
-                         "value":13
+                         "value":16
                         }, 
                         {
                          "name":"in_chest",
@@ -3099,6 +3099,11 @@
                          "name":"qldown",
                          "type":"float",
                          "value":0.7
+                        }, 
+                        {
+                         "name":"name",
+                         "type":"string",
+                         "value":"two-handed_axe"
                         }, 
                         {
                          "name":"type",
@@ -3373,17 +3378,17 @@
                         {
                          "name":"name",
                          "type":"string",
-                         "value":"time_stoper"
+                         "value":"time_stopper"
                         }, 
                         {
                          "name":"price",
                          "type":"int",
-                         "value":30
+                         "value":50
                         }, 
                         {
                          "name":"qldown",
                          "type":"float",
-                         "value":60
+                         "value":120
                         }, 
                         {
                          "name":"spellid",
@@ -3431,7 +3436,7 @@
                         {
                          "name":"name",
                          "type":"string",
-                         "value":"red_key"
+                         "value":"orange_key"
                         }, 
                         {
                          "name":"rgb",
@@ -3537,7 +3542,7 @@
                         {
                          "name":"name",
                          "type":"string",
-                         "value":"yellow_key"
+                         "value":"green_key"
                         }, 
                         {
                          "name":"rgb",

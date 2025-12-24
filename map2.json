@@ -1906,7 +1906,7 @@
                         {
                          "name":"content",
                          "type":"string",
-                         "value":"1weapon\/t:12#idamage:7#bin_inventory:False#bin_chest:True#fqldown:0.5#sclass:melee#sname:iron_sword"
+                         "value":"1weapon\/t:12#idamage:7#bin_inventory:False#bin_chest:True#fqldown:0.4#sclass:melee#sname:iron_sword#"
                         }, 
                         {
                          "name":"damage",

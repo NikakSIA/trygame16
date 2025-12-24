@@ -45,6 +45,8 @@ class GameWindow(arcade.Window):
             self.r_pressed = True
         elif key == arcade.key.LCTRL:
             self.ctrl_pressed = True
+        elif key == arcade.key.ESCAPE:
+            self.close()
         if all([self.shift_pressed, self.r_pressed, self.ctrl_pressed]):
             with open("save.json", "w") as file_out:
                 json.dump({"mapID": 0, "pos": [65, 15], "hp": 100, "inv": [], "bag": "", "max_hp": 100, "stren": 1, "agil": 1, "ms": 1, "arm": 0, "timer": 0}, file_out)
@@ -402,6 +404,7 @@ class GameView(arcade.View):
             info = json.load(file_in)
         self.info["EN"] = info[self.map_ID]
         self.loading()
+        self.player_sprite.rgb = arcade.color.WHITE
         if self.save_inv != []:
             for i, b in enumerate(self.save_inv[0]):
                 a = self.decode_item(b)
@@ -426,6 +429,7 @@ class GameView(arcade.View):
         self.stat_update()
         
         for i in self.scene.get_sprite_list("enemies"):
+            i.scale = self.scaling
             if "patrolling" in i.properties:
                 i.position=[int(f) * self.scaling for f in i.properties["patrolling"].split()[i.properties["pointID"]].split(",")]
             if "invisible" in i.properties["mods"].split():
@@ -440,6 +444,8 @@ class GameView(arcade.View):
         for i in self.scene.get_sprite_list("chests"):
             if "treasure" in i.properties.keys():
                 i.properties["content"] += i.properties["treasure"].split()[randrange(0, len(i.properties["treasure"].split()), 1)]
+        self.sound_volume = 1
+        self.music_volume = 1
         self.soundtrack.stop(self.soundtrack_player)
         aa = ["kevin macleoid/Scheming-Weasel-faster0.mp3", "kevin macleoid/Hitman1.mp3", "kevin macleoid/Ibn-Al-Noor2.mp3", "kevin macleoid/Come-Play-with-Me3.mp3", "kevin macleoid/Day-of-Chaos4.mp3", "sounds/bossfigth_song1.mp3"]
         self.soundtrack = arcade.load_sound(ASSETS_PATH / aa[self.map_ID])
@@ -579,7 +585,7 @@ class GameView(arcade.View):
             #ДВЕРИ
             if self.todo and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] == "key":
                 for door in self.scene.get_sprite_list("doors"):
-                    if on_range(self.player_sprite.center_x, self.player_sprite.center_y, door.center_x, door.center_y) < 16 * self.scaling:
+                    if on_range(self.player_sprite.center_x, self.player_sprite.center_y, door.center_x, door.center_y) < 24 * self.scaling:
                         door.remove_from_sprite_lists()
                         arcade.load_sound(ASSETS_PATH/"sounds/open_door1.mp3").play(self.sound_volume)
                         [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] += -1
@@ -589,7 +595,7 @@ class GameView(arcade.View):
 
             if self.todo and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] == "spkey":
                 for door in self.scene.get_sprite_list("sp_doors"):
-                    if on_range(self.player_sprite.center_x, self.player_sprite.center_y, door.center_x, door.center_y) < 16 * self.scaling and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0:
+                    if on_range(self.player_sprite.center_x, self.player_sprite.center_y, door.center_x, door.center_y) < 24 * self.scaling and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0:
                         if [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["spid"] == door.properties["spid"]:
                             while [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["spid"] in [i.properties["spid"] for i in self.scene.get_sprite_list("sp_doors")]:
                                 [i for i in self.scene.get_sprite_list("sp_doors") if i.properties["spid"] == [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["spid"]][0].remove_from_sprite_lists()
@@ -605,6 +611,18 @@ class GameView(arcade.View):
                             arcade.load_sound(ASSETS_PATH / "sounds/NO.mp3").play(self.sound_volume*0.6)
                             self.minus_hp_text.text = "I need another key!"
                             self.minus_hp_update_time = self.timer
+            
+            if not([i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] == "weapon" and len(self.in_chest) == 0):
+                self.up_pressed = False
+                self.down_pressed = False
+                self.right_pressed = False
+                self.left_pressed = False
+                self.change_melee_attack_x = 0
+                self.change_melee_attack_y = 0
+                self.melee_attack.scale_x = 0.1
+                self.melee_attack.scale_y = 0.1
+                self.melee_attack.properties["active"] = False
+                self.attack = False
 
             #колдунства
             if self.todo and len(self.in_chest) == 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] == "staff":
@@ -655,7 +673,7 @@ class GameView(arcade.View):
                         arcade.load_sound(ASSETS_PATH/"sounds/BloodlustTarget.wav").play(self.sound_volume)
                         self.player_sprite.properties["rageat"] = self.timer
                         self.player_sprite.rgb = arcade.color.RED
-                        self.bonus_stats["strength"] += 0.3
+                        self.bonus_stats["strength"] += 0.4
                         self.bonus_stats["movespeed"] += 0.3
 
                     elif staff.properties["spellid"] == 4:
@@ -680,6 +698,7 @@ class GameView(arcade.View):
                     self.minus_hp_update_time = self.timer
             #переход на другой уровень
             if self.todo and arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("portals")):
+                self.walk("stand")
                 arcade.load_sound(ASSETS_PATH / "sounds/nextlevel.mp3").play(self.sound_volume)
                 self.map_ID = arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("portals"))[0].properties["mapID"]
                 in_inventory = [i for i in self.scene.get_sprite_list("pickups") if i.properties["in_inventory"] or i.properties["in_chest"]]
@@ -936,21 +955,28 @@ class GameView(arcade.View):
                     coin.properties["max_count"] = 100
                     coin.properties["in_chest"] = False
                     coin.properties["in_inventory"] = False
+                    arcade.load_sound(ASSETS_PATH / "sounds/pay1.mp3").play(self.sound_volume)
                     if "thief" in player_hit[0].properties["mods"].split() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0:
-                        [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] -= 1
-                        if "name" in [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties.keys() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["name"] == "cheese":
-                            self.kill_enemy(player_hit[0])
-                            arcade.load_sound(ASSETS_PATH / "sounds/death_by_cheese.mp3").play(self.sound_volume)
-                        if [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] in ["passive", "weapon", "disposable", "staff"]:
-                            coin.properties["count"] = 5
-                        if [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] <= 0:
-                            [i for i in self.inventory if i.properties["selected"]][0].properties["content"].remove_from_sprite_lists()
-                            [i for i in self.inventory if i.properties["selected"]][0].properties["content"] = 0 
+                        if not [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] in ["bag", "spkey"]:
+                            [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] -= 1
+                            if "name" in [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties.keys() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["name"] == "cheese":
+                                self.kill_enemy(player_hit[0])
+                                arcade.load_sound(ASSETS_PATH / "sounds/death_by_cheese.mp3").play(self.sound_volume)
+                            elif [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] in ["passive", "weapon", "disposable", "staff"]:
+                                    coin.properties["count"] = 5
+                            if [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] <= 0:
+                                [i for i in self.inventory if i.properties["selected"]][0].properties["content"].remove_from_sprite_lists()
+                                [i for i in self.inventory if i.properties["selected"]][0].properties["content"] = 0 
+                        else:
+                            arcade.load_sound(ASSETS_PATH / "sounds/NO.mp3").play(self.sound_volume*0.6)
+                            self.minus_hp_text.text = "I don't want to give it away!"
+                            self.minus_hp_update_time = self.timer
                     self.scene.get_sprite_list("pickups").append(coin)
                 if self.player_sprite.properties["hitpoints"] <= 0:
                     self.player_sprite.remove_from_sprite_lists()
                     self.Gameover = True 
                     self.soundtrack.stop(self.soundtrack_player)
+                    self.stamina_sound.stop(self.stamina_player)
                     arcade.load_sound(ASSETS_PATH / "sounds/gameover.mp3").play(1.5*self.sound_volume)
                     arcade.load_sound(ASSETS_PATH / "sounds/gameover1.mp3").play(self.sound_volume)
 
@@ -1073,8 +1099,11 @@ class GameView(arcade.View):
                     continue
                 if enemy.properties["movement"] in ["simple", "jerker"] and (("friendly" in enemy.properties["mods"].split() and enemy.properties["opponent"] == 0) or "friendly" not in enemy.properties["mods"].split()) and not ("melee" in enemy.properties["mods"].split() and enemy.properties["isattack"]):
                     range_to_player = on_range(enemy.center_x, enemy.center_y, self.player_sprite.center_x, self.player_sprite.center_y)
-                    if range_to_player > enemy.properties["vision"] * self.scaling and not "patrolling" in enemy.properties.keys():
-                        continue
+                    if range_to_player > enemy.properties["vision"] * self.scaling:
+                        if enemy.properties["sees_player"]:
+                            enemy.properties["sees_player"] = False
+                        if not "patrolling" in enemy.properties.keys():
+                            continue
                     if enemy.center_x > self.player_sprite.center_x:
                         left = -1
                     else:
@@ -1083,14 +1112,14 @@ class GameView(arcade.View):
                         down = -1
                     else:
                         down = 1
-                    if not enemy.properties["sees_player"] and self.timer - enemy.properties["lastreaction"] >= 1 and not arcade.check_for_collision_with_list(enemy, self.player_list) :   
+                    if not enemy.properties["sees_player"] and self.timer - enemy.properties["lastreaction"] >= 1 and range_to_player < enemy.properties["vision"] * self.scaling and not arcade.check_for_collision_with_list(enemy, self.player_list):   
                         enemy.properties["lastreaction"] = self.timer
                         flag = True
                         self.point.center_x = enemy.center_x
                         self.point.center_y = enemy.center_y
                         while not arcade.check_for_collision_with_list(self.point, self.player_list):
-                            self.point.center_x += left * abs(enemy.center_x - self.player_sprite.center_x) / (range_to_player / enemy.properties["movespeed"]) / 1.5 * self.scaling
-                            self.point.center_y += down * abs(enemy.center_y - self.player_sprite.center_y) / (range_to_player / enemy.properties["movespeed"]) / 1.5 * self.scaling
+                            self.point.center_x += left * abs(enemy.center_x - self.player_sprite.center_x) / (range_to_player / 15) * self.scaling
+                            self.point.center_y += down * abs(enemy.center_y - self.player_sprite.center_y) / (range_to_player / 15) * self.scaling
                             if arcade.check_for_collision_with_list(self.point, self.wall_list):
                                 flag = False
                                 break
@@ -1107,8 +1136,6 @@ class GameView(arcade.View):
                         enemy.visible = True
                         enemy.properties["vision"] = 1000*self.scaling
                         enemy.properties["lastpatternchange"] = self.timer - 10
-                    if range_to_player > enemy.properties["vision"] * self.scaling:
-                        enemy.properties["sees_player"] = False
 
                     if enemy.properties["movement"] == "jerker" and enemy.properties["sees_player"] and range_to_player != 0 and ((("effects" in enemy.properties.keys()) and ("stun" not in enemy.properties["effects"].keys())) or ("effects" not in enemy.properties.keys())):
                         if self.timer - enemy.properties["lastjerk"] > 1 and enemy.properties["range"] <= 0:
@@ -1147,7 +1174,7 @@ class GameView(arcade.View):
                                     shot.change_x = left * abs(enemy.center_x - self.player_sprite.center_x + 20*self.scaling*i) / (range_to_player / enemy.properties["movespeed"]) / 1.5 * self.scaling 
                                     shot.change_y = down * abs(enemy.center_y - self.player_sprite.center_y) / (range_to_player / enemy.properties["movespeed"]) / 1.5 * self.scaling
                                     self.scene.get_sprite_list("enemies").append(shot)
-                        if "necromancy" in enemy.properties["mods"].split() and self.timer - 7 > enemy.properties["lastshotat"]:
+                        if "necromancy" in enemy.properties["mods"].split() and self.timer - 7.5 + 2.5 * ("double" in enemy.properties["mods"].split() or "king" in enemy.properties["mods"].split()) > enemy.properties["lastshotat"]:
                             arcade.load_sound(ASSETS_PATH/"sounds/boner1.mp3").play(self.sound_volume)
                             enemy.properties["lastshotat"] = self.timer
                             for i in range((1*"double" in enemy.properties["mods"].split()) + 1):
@@ -1385,7 +1412,7 @@ class GameView(arcade.View):
     
             #подбор пикапов
             pickup_hit = arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("pickups"))
-            if pickup_hit != [] and self.todo and not (pickup_hit[0].properties["in_inventory"] or pickup_hit[0].properties["in_chest"]) and not(arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("enemies"))):
+            if pickup_hit != [] and self.todo and not (pickup_hit[0].properties["in_inventory"] or pickup_hit[0].properties["in_chest"]) and not(arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("enemies")) and not "friendly" in arcade.check_for_collision_with_list(self.player_sprite, self.scene.get_sprite_list("enemies"))[0].properties["mods"].split()):
                 if not "price" in pickup_hit[0].properties or [i for i in [i.properties["content"] for i in self.inventory if i.properties["content"] != 0] if i.properties["type"] == "coin" and i.properties["count"] >= pickup_hit[0].properties["price"]] != []:
                     if "price" in pickup_hit[0].properties and (0 in inventory or (pickup_hit[0].properties["type"] in inventory and self.inventory[inventory.index(pickup_hit[0].properties["type"])].properties["content"].properties["count"] < pickup_hit[0].properties["max_count"])):
                         arcade.load_sound(ASSETS_PATH / "sounds/pay1.mp3").play(self.sound_volume)
@@ -1465,10 +1492,11 @@ class GameView(arcade.View):
                     mimic.properties["max_hitpoints"] = 150
                     mimic.properties["damage"] = 20
                     mimic.properties["mods"] = ""
-                    mimic.properties["sees_player"] = True
+                    mimic.properties["sees_player"] = False
                     mimic.properties["vision"] = 100
+                    mimic.properties["lastreaction"] = self.timer + 0.5
                     mimic.rgb = (255, 0, 0)
-                    mimic.scale = self.scaling * 1.1
+                    mimic.scale = self.scaling
                     chest_hit[0].remove_from_sprite_lists()
                     self.scene.get_sprite_list("enemies").append(mimic)
                 elif chest_hit != []:
@@ -1497,7 +1525,7 @@ class GameView(arcade.View):
             #остывание игрока
             if self.player_sprite.properties["rageat"] + 10 < self.timer and self.player_sprite.rgb == (255, 0, 0):
                 self.player_sprite.rgb = arcade.color.WHITE
-                self.bonus_stats["strength"] -= 0.3
+                self.bonus_stats["strength"] -= 0.4
                 self.bonus_stats["movespeed"] -= 0.3
                 
             #обновление всех текстов
