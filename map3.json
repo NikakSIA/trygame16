@@ -3091,6 +3091,11 @@
                          "value":1
                         }, 
                         {
+                         "name":"name",
+                         "type":"string",
+                         "value":"two-handed_axe"
+                        }, 
+                        {
                          "name":"price",
                          "type":"int",
                          "value":30
@@ -3099,11 +3104,6 @@
                          "name":"qldown",
                          "type":"float",
                          "value":0.7
-                        }, 
-                        {
-                         "name":"name",
-                         "type":"string",
-                         "value":"two-handed_axe"
                         }, 
                         {
                          "name":"type",

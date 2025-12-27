@@ -1,4 +1,3 @@
-#{"mapID": 0, "pos": [65, 15], "hp": 100, "inv": [], "bag": "", "max_hp": 100, "stren": 1, "agil": 1, "ms": 1, "arm": 0} стартовый сейв
 import arcade
 from random import randrange
 import pathlib
@@ -31,7 +30,7 @@ def generate_sprite(t, x, y, s):
     return a
 
 ASSETS_PATH = pathlib.Path.cwd()
-SCREEN_WIDTH = 700#576
+SCREEN_WIDTH = 700
 SCREEN_HEIGHT = SCREEN_WIDTH
 
 class GameWindow(arcade.Window):
@@ -208,7 +207,7 @@ class GameView(arcade.View):
         self.scene.get_sprite_list("enemies").append(enemy)
         enemy.center_x += randrange(-5, 5, 1)
         enemy.center_y += randrange(-5, 5, 1)
-        if hash.get(str(enemy.position), False) or arcade.check_for_collision_with_list(enemy, self.wall_list) or arcade.check_for_collision_with_list(enemy, self.player_list) or arcade.check_for_collision_with_list(enemy, self.scene.get_sprite_list("enemies")):
+        if hash.get(str(enemy.position), False) or arcade.check_for_collision_with_list(enemy, self.wall_list):
             hash[str(enemy.position)] = True
             enemy.remove_from_sprite_lists()
             self.spawn_enemy_without_collisions(enemy, hash)
@@ -321,6 +320,8 @@ class GameView(arcade.View):
                         sprite.change_x *= self.scaling
                         sprite.change_y *= self.scaling
                         sprite.scale = self.scaling
+                    if i == "enemies" and "boss" in sprite.properties["mods"].split():
+                        sprite.scale = 3 * self.scaling
                 del self.scene[i]
                 self.scene.add_sprite_list(i, sprite_list=self.scene1.get_sprite_list(i))
             for i in self.inventory:
@@ -894,19 +895,17 @@ class GameView(arcade.View):
             #боль врагов
             if len(self.scene.get_sprite_list("enemies")) > 0:
                 enemy_hit = arcade.check_for_collision_with_list(self.melee_attack, self.scene.get_sprite_list("enemies"))
-            else:
-                enemy_hit = []
-                if weapon_in_hands and self.melee_attack.properties["active"]:
-                    pass
-                    "searching sound...."
             for enemy in [i for i in enemy_hit if not "untouchable" in i.properties["mods"].split() and not "friendly" in i.properties["mods"].split()]:
                 if weapon_in_hands and self.melee_attack.properties["active"]:
-                    enemy.properties["hitpoints"] -= [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["damage"] * (self.player_sprite.properties["strength"] + self.bonus_stats["strength"])
+                    if not("boss" in enemy.properties["mods"].split() and enemy.properties["movespeed"] == 0.2):
+                        enemy.properties["hitpoints"] -= [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["damage"] * (self.player_sprite.properties["strength"] + self.bonus_stats["strength"])
+                        self.damage_text.text = "-" + str(round([i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["damage"] * (self.player_sprite.properties["strength"] + self.bonus_stats["strength"]), 1))
+                    else:
+                        self.damage_text.text = "miss!"
                     if "mods" in [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties.keys() and "stun" in [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["mods"].split() and randrange(1, 4) == 3 and "effects" in enemy.properties.keys():
                         enemy.properties["effects"]["stun"] = 1.5
                     self.damage_text.x = enemy.center_x
                     self.damage_text.y = enemy.center_y + 10 * self.scaling
-                    self.damage_text.text = "-" + str(round([i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["damage"] * (self.player_sprite.properties["strength"] + self.bonus_stats["strength"]), 1))
                     self.damage_text_update_time = self.timer
                     self.melee_attack.properties["active"] = False
                     for friend in [i for i in self.scene.get_sprite_list("enemies") if "friendly" in i.properties["mods"].split()]:
@@ -955,9 +954,8 @@ class GameView(arcade.View):
                     coin.properties["max_count"] = 100
                     coin.properties["in_chest"] = False
                     coin.properties["in_inventory"] = False
-                    arcade.load_sound(ASSETS_PATH / "sounds/pay1.mp3").play(self.sound_volume)
                     if "thief" in player_hit[0].properties["mods"].split() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0:
-                        if not [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] in ["bag", "spkey"]:
+                        if not [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] in ["bag", "spkey"] or "name" in [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties.keys() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["name"] == "cheese":
                             [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["count"] -= 1
                             if "name" in [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties.keys() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["name"] == "cheese":
                                 self.kill_enemy(player_hit[0])
@@ -971,7 +969,9 @@ class GameView(arcade.View):
                             arcade.load_sound(ASSETS_PATH / "sounds/NO.mp3").play(self.sound_volume*0.6)
                             self.minus_hp_text.text = "I don't want to give it away!"
                             self.minus_hp_update_time = self.timer
-                    self.scene.get_sprite_list("pickups").append(coin)
+                    if not ("thief" in player_hit[0].properties["mods"].split() and [i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] in ["bag", "spkey"]):
+                        arcade.load_sound(ASSETS_PATH / "sounds/pay1.mp3").play(self.sound_volume)
+                        self.scene.get_sprite_list("pickups").append(coin)
                 if self.player_sprite.properties["hitpoints"] <= 0:
                     self.player_sprite.remove_from_sprite_lists()
                     self.Gameover = True 
@@ -1075,8 +1075,15 @@ class GameView(arcade.View):
                 shot.properties["range"] -= abs(shot.change_x + shot.change_y)
                 shot_hit = [i for i in arcade.check_for_collision_with_list(shot, self.scene.get_sprite_list("enemies")) if not "untouchable" in i.properties["mods"].split() and not "friendly" in i.properties["mods"].split()]
                 if shot_hit != [] and "tp" not in shot.properties.keys():
-                    shot_hit[0].properties["hitpoints"] -= shot.properties["damage"] * (self.player_sprite.properties["agility"] + self.bonus_stats["agility"])
-                    if randrange(0, 100, 1) > 5:
+                    if not("boss" in shot_hit[0].properties["mods"].split() and shot_hit[0].properties["movespeed"] == 0.2):
+                        shot_hit[0].properties["hitpoints"] -= shot.properties["damage"] * (self.player_sprite.properties["agility"] + self.bonus_stats["agility"])
+                        self.damage_text.text = "-" + str(round(shot.properties["damage"] * (self.player_sprite.properties["agility"] + self.bonus_stats["agility"]), 1))
+                        if "mods" in shot.properties.keys():
+                            for effect in shot.properties["mods"].keys():
+                                shot_hit[0].properties["effects"][effect] = shot.properties["mods"][effect]
+                    else:
+                        self.damage_text.text = "miss!"
+                    if randrange(0, 100, 1) > 5 and shot.properties["damage"] > 0 and not "quiver" in [i.properties["content"].properties["name"] for i in self.inventory if i.properties["content"] != 0 and "name" in i.properties["content"].properties.keys()]:
                         shot_hit[0].properties["content"] += " 1arrow/t:11#bin_inventory:False#idamage:1#fshotspeed:1.5#bin_chest:True#"
                     if "mods" in shot.properties.keys():
                         for effect in shot.properties["mods"].keys():
@@ -1102,7 +1109,7 @@ class GameView(arcade.View):
                     if range_to_player > enemy.properties["vision"] * self.scaling:
                         if enemy.properties["sees_player"]:
                             enemy.properties["sees_player"] = False
-                        if not "patrolling" in enemy.properties.keys():
+                        if not ("patrolling" in enemy.properties.keys() or "boss" in enemy.properties["mods"].split()):
                             continue
                     if enemy.center_x > self.player_sprite.center_x:
                         left = -1
@@ -1136,6 +1143,7 @@ class GameView(arcade.View):
                         enemy.visible = True
                         enemy.properties["vision"] = 1000*self.scaling
                         enemy.properties["lastpatternchange"] = self.timer - 10
+                        arcade.load_sound(ASSETS_PATH / "sounds/boss_appeared.mp3").play(self.sound_volume)
 
                     if enemy.properties["movement"] == "jerker" and enemy.properties["sees_player"] and range_to_player != 0 and ((("effects" in enemy.properties.keys()) and ("stun" not in enemy.properties["effects"].keys())) or ("effects" not in enemy.properties.keys())):
                         if self.timer - enemy.properties["lastjerk"] > 1 and enemy.properties["range"] <= 0:
@@ -1367,10 +1375,8 @@ class GameView(arcade.View):
                             enemy.properties["movespeed"] = 0.2
                         if a in [3, 4] and "feared" not in enemy.properties["mods"].split():
                             enemy.properties["mods"] += " feared"
-                        elif "feared" in enemy.properties["mods"].split():
-                            w = enemy.properties["mods"].split()
-                            w.remove("feared")
-                            enemy.properties["mods"] = str(w).replace(", ", " ")[1:-1]
+                        elif a not in [3, 4] and "feared" in enemy.properties["mods"].split():
+                            enemy.properties["mods"] = enemy.properties["mods"].replace(" feared", "")
                         if a in [3, 4]:
                             enemy.properties["Groups_left"] = 5
                     #обновление полосы здоровья
@@ -1403,11 +1409,18 @@ class GameView(arcade.View):
                             summon.texture = i.texture
                             summon.properties["effects"] = {}
                             summon.properties["mods"] += " summoned"
-                            summon.properties["sees_player"] = True
+                            summon.properties["sees_player"] = False
                             summon.properties["vision"] = enemy.properties["vision"]
+                            summon.properties["lastreaction"] = self.timer
                             summon.scale = self.scaling
-                            summon.center_x = enemy.center_x + index * 20 * self.scaling
-                            summon.center_y = enemy.center_y
+                            if enemy.center_x < self.l / 2:
+                                summon.center_x = enemy.center_x + index * 20 * self.scaling
+                            else:
+                                summon.center_x = enemy.center_x - index * 20 * self.scaling
+                            if enemy.center_y < self.l / 2:  
+                                summon.center_y = enemy.center_y + 50 * self.scaling
+                            else:
+                                summon.center_y = enemy.center_y + 50 * self.scaling
                             self.spawn_enemy_without_collisions(summon)
     
             #подбор пикапов
@@ -1457,7 +1470,7 @@ class GameView(arcade.View):
                         [i for i in self.inventory if i.properties["selected"]][0].properties["content"].remove_from_sprite_lists() 
                         [i for i in self.inventory if i.properties["selected"]][0].properties["content"] = 0
                 elif (chest_hit != [] and "mimic" not in chest_hit[0].properties.keys() and not chest_hit[0].properties["locked"] or ([i for i in self.inventory if i.properties["selected"]][0].properties["content"] != 0 and [i for i in self.inventory if i.properties["selected"]][0].properties["content"].properties["type"] == "bag")):
-                    if chest_hit != []:
+                    if chest_hit != [] and not chest_hit[0].properties["locked"]:
                         self.opened_chest = chest_hit[0] 
                         if self.opened_chest.texture == self.textures.get_sprite_list("textures")[6].texture:
                             arcade.load_sound(ASSETS_PATH / "sounds/open_bag.mp3").play(3*self.sound_volume)
@@ -1552,9 +1565,10 @@ class GameView(arcade.View):
             self.walk("stand")
         elif self.Gameover:
             self.Gameover_text.text = f"You win! (in {round(self.timer, 2)})"
+            self.Gameover_text.position = (self.l/2, self.l/2)
+            self.Gameover_text.font_size = 35*self.scaling/32*self.game_map.width
             self.walk("stand")
-            self.boss_hp.scale = 0    
-
+            self.boss_hp.scale = 0     
     def on_resize(self, width, height):
         self.resizing = True
         self.resized = True

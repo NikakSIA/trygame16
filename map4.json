@@ -18,7 +18,7 @@
         }, 
         {
          "compression":"zlib",
-         "data":"eJzdlcEOgCAMQ7n533658UDCwY2VdiO4hMTA1kdxYmt23JezKKxBtN65PnbwZ2t\/9z\/TR\/mjl9GbN5Dcr\/OK7BHxkamdEZn+d\/NV2gyfGSyfCcaHms9oVO3X4ityMvmR2oq+nfGz6jyfSj7af6r+R3Iiz6t6kXxGR8W33v9q\/1e850iczmfvHwU\/UrebH9nLCfw+b30\/K+dfcf9m\/P+QdYb\/ADK3eGo=",
+         "data":"eJzdlUsOwCAIRLvrvXvypgsTF6IDM2AsCUkjnwdK9brG8tyGYSHRODTPt950B39l\/3v\/0X2Z+fcxfX+Won6jOLRGTx+ZuTMks\/\/dfFVuhs8oy2eE6UPNZ3JU1WvxFT6ZfCS2Ym5X\/Ky4WZ9Kvnf+VPPv8UG+o\/kQfyaPim+df3T+K84ZkdP57P2j4CNxu\/lILSfw27r1\/0T2v+L+zXj\/PHaG\/wIJ9Xfh",
          "encoding":"base64",
          "height":32,
          "id":3,
@@ -32,7 +32,7 @@
         }, 
         {
          "compression":"zlib",
-         "data":"eJxjYIAAKXZUGheIY0NgegB\/FuxsECDk1lEwOAG2eKNXeqIWoHXa0yQhPEhROwoIA3LidrQsIgzIDSNs+mgR3tQqg5JY8WNa2z8cgTQ7dja1ASXpihK9k9HSBTXKf1LT30gEQ6HupEVZN1pfkQYGS3gJcmCKweoNSt1Irn5q1lvE5kf9Aci3lJQVgyX9oAMAzbMOLg==",
+         "data":"eJxjYGBgkGJngANkNjYQx4bA9AD+LNjZIEDIraNgcAJs8UbPNEUNQOu0p0lCWJCidhQQBuTE7WhZRBiQG0bY9NEivKlV\/iSx4se0tn84Aml27GxqA0rSFSV6J6OlC2qU\/8jpjZj0NxLBUKg7aVHWjdZXpIHBEl6CHJhisHqDUjeSq5+a9Rax+VF\/APItJWXFYEk\/6AAAmm8OKw==",
          "encoding":"base64",
          "height":32,
          "id":4,
@@ -223,7 +223,7 @@
                         {
                          "name":"hitpoints",
                          "type":"float",
-                         "value":50
+                         "value":70
                         }, 
                         {
                          "name":"max_hitpoints",
@@ -372,7 +372,7 @@
                         {
                          "name":"hitpoints",
                          "type":"float",
-                         "value":40
+                         "value":100
                         }, 
                         {
                          "name":"lastshotat",
@@ -435,7 +435,7 @@
                         {
                          "name":"hitpoints",
                          "type":"float",
-                         "value":40
+                         "value":100
                         }, 
                         {
                          "name":"lastshotat",
@@ -1274,142 +1274,6 @@
                  "y":152.486549707602
                 }, 
                 {
-                 "gid":1110,
-                 "height":16,
-                 "id":47,
-                 "name":"",
-                 "properties":[
-                        {
-                         "name":"content",
-                         "type":"string",
-                         "value":""
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"float",
-                         "value":20
-                        }, 
-                        {
-                         "name":"hitpoints",
-                         "type":"float",
-                         "value":90
-                        }, 
-                        {
-                         "name":"isattack",
-                         "type":"bool",
-                         "value":false
-                        }, 
-                        {
-                         "name":"lastattack",
-                         "type":"float",
-                         "value":0
-                        }, 
-                        {
-                         "name":"max_hitpoints",
-                         "type":"int",
-                         "value":90
-                        }, 
-                        {
-                         "name":"mods",
-                         "type":"string",
-                         "value":"melee"
-                        }, 
-                        {
-                         "name":"movement",
-                         "type":"string",
-                         "value":"simple"
-                        }, 
-                        {
-                         "name":"movespeed",
-                         "type":"float",
-                         "value":1.1
-                        }, 
-                        {
-                         "name":"sees_player",
-                         "type":"bool",
-                         "value":false
-                        }, 
-                        {
-                         "name":"vision",
-                         "type":"float",
-                         "value":70
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":16,
-                 "x":159.672514619883,
-                 "y":314.170760233918
-                }, 
-                {
-                 "gid":1110,
-                 "height":16,
-                 "id":48,
-                 "name":"",
-                 "properties":[
-                        {
-                         "name":"content",
-                         "type":"string",
-                         "value":""
-                        }, 
-                        {
-                         "name":"damage",
-                         "type":"float",
-                         "value":20
-                        }, 
-                        {
-                         "name":"hitpoints",
-                         "type":"float",
-                         "value":90
-                        }, 
-                        {
-                         "name":"isattack",
-                         "type":"bool",
-                         "value":false
-                        }, 
-                        {
-                         "name":"lastattack",
-                         "type":"float",
-                         "value":0
-                        }, 
-                        {
-                         "name":"max_hitpoints",
-                         "type":"int",
-                         "value":90
-                        }, 
-                        {
-                         "name":"mods",
-                         "type":"string",
-                         "value":"melee"
-                        }, 
-                        {
-                         "name":"movement",
-                         "type":"string",
-                         "value":"simple"
-                        }, 
-                        {
-                         "name":"movespeed",
-                         "type":"float",
-                         "value":1.1
-                        }, 
-                        {
-                         "name":"sees_player",
-                         "type":"bool",
-                         "value":false
-                        }, 
-                        {
-                         "name":"vision",
-                         "type":"float",
-                         "value":70
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":16,
-                 "x":208.776608187134,
-                 "y":314.769590643275
-                }, 
-                {
                  "gid":1254,
                  "height":16,
                  "id":49,
@@ -1491,7 +1355,7 @@
                         {
                          "name":"hitpoints",
                          "type":"float",
-                         "value":35
+                         "value":60
                         }, 
                         {
                          "name":"max_hitpoints",
@@ -1521,7 +1385,7 @@
                         {
                          "name":"vision",
                          "type":"float",
-                         "value":70
+                         "value":200
                         }],
                  "rotation":0,
                  "type":"",
@@ -1549,7 +1413,7 @@
                         {
                          "name":"hitpoints",
                          "type":"float",
-                         "value":35
+                         "value":60
                         }, 
                         {
                          "name":"max_hitpoints",
@@ -1579,7 +1443,7 @@
                         {
                          "name":"vision",
                          "type":"float",
-                         "value":70
+                         "value":200
                         }],
                  "rotation":0,
                  "type":"",
@@ -1607,7 +1471,7 @@
                         {
                          "name":"hitpoints",
                          "type":"float",
-                         "value":35
+                         "value":60
                         }, 
                         {
                          "name":"max_hitpoints",
@@ -1637,7 +1501,7 @@
                         {
                          "name":"vision",
                          "type":"float",
-                         "value":70
+                         "value":200
                         }],
                  "rotation":0,
                  "type":"",
@@ -1665,7 +1529,7 @@
                         {
                          "name":"hitpoints",
                          "type":"float",
-                         "value":35
+                         "value":80
                         }, 
                         {
                          "name":"max_hitpoints",
@@ -1695,7 +1559,7 @@
                         {
                          "name":"vision",
                          "type":"float",
-                         "value":70
+                         "value":200
                         }],
                  "rotation":0,
                  "type":"",
@@ -1723,7 +1587,7 @@
                         {
                          "name":"hitpoints",
                          "type":"float",
-                         "value":90
+                         "value":140
                         }, 
                         {
                          "name":"max_hitpoints",
@@ -1743,7 +1607,7 @@
                         {
                          "name":"movespeed",
                          "type":"float",
-                         "value":1
+                         "value":1.1
                         }, 
                         {
                          "name":"rgb",
@@ -1758,7 +1622,7 @@
                         {
                          "name":"vision",
                          "type":"float",
-                         "value":70
+                         "value":200
                         }],
                  "rotation":0,
                  "type":"",
@@ -1878,8 +1742,7 @@
                  "width":16,
                  "x":400,
                  "y":144
-                },
-            
+                }, 
                 {
                  "gid":1101,
                  "height":16,
@@ -1935,7 +1798,8 @@
                  "width":16,
                  "x":416,
                  "y":144
-                }, 
+                },
+            
                 {
                  "gid":1101,
                  "height":16,
@@ -2580,6 +2444,142 @@
                  "width":16,
                  "x":383.036149122807,
                  "y":36.6128713450292
+                }, 
+                {
+                 "gid":1108,
+                 "height":16,
+                 "id":179,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"content",
+                         "type":"string",
+                         "value":""
+                        }, 
+                        {
+                         "name":"damage",
+                         "type":"float",
+                         "value":20
+                        }, 
+                        {
+                         "name":"hitpoints",
+                         "type":"float",
+                         "value":90
+                        }, 
+                        {
+                         "name":"isattack",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"lastattack",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"max_hitpoints",
+                         "type":"int",
+                         "value":90
+                        }, 
+                        {
+                         "name":"mods",
+                         "type":"string",
+                         "value":""
+                        }, 
+                        {
+                         "name":"movement",
+                         "type":"string",
+                         "value":"simple"
+                        }, 
+                        {
+                         "name":"movespeed",
+                         "type":"float",
+                         "value":1.1
+                        }, 
+                        {
+                         "name":"sees_player",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"vision",
+                         "type":"float",
+                         "value":70
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":208.666666666667,
+                 "y":314
+                }, 
+                {
+                 "gid":1108,
+                 "height":16,
+                 "id":180,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"content",
+                         "type":"string",
+                         "value":""
+                        }, 
+                        {
+                         "name":"damage",
+                         "type":"float",
+                         "value":20
+                        }, 
+                        {
+                         "name":"hitpoints",
+                         "type":"float",
+                         "value":90
+                        }, 
+                        {
+                         "name":"isattack",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"lastattack",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"max_hitpoints",
+                         "type":"int",
+                         "value":90
+                        }, 
+                        {
+                         "name":"mods",
+                         "type":"string",
+                         "value":""
+                        }, 
+                        {
+                         "name":"movement",
+                         "type":"string",
+                         "value":"simple"
+                        }, 
+                        {
+                         "name":"movespeed",
+                         "type":"float",
+                         "value":1.1
+                        }, 
+                        {
+                         "name":"sees_player",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"vision",
+                         "type":"float",
+                         "value":70
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":159.333333333333,
+                 "y":313.333333333333
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -2678,8 +2678,8 @@
                  "type":"",
                  "visible":true,
                  "width":16,
-                 "x":48,
-                 "y":48
+                 "x":40.1234939759036,
+                 "y":40.75
                 }, 
                 {
                  "gid":1383,
@@ -2797,6 +2797,34 @@
                  "width":16,
                  "x":256,
                  "y":512
+                }, 
+                {
+                 "gid":1378,
+                 "height":16,
+                 "id":177,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"content",
+                         "type":"string",
+                         "value":"2coin\/t:7#bin_chest:True#bin_inventory:False#"
+                        }, 
+                        {
+                         "name":"locked",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"slots",
+                         "type":"int",
+                         "value":2
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":400,
+                 "y":320
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -2934,7 +2962,7 @@
                         {
                          "name":"damage",
                          "type":"float",
-                         "value":17
+                         "value":20
                         }, 
                         {
                          "name":"in_chest",
@@ -3261,6 +3289,24 @@
                  "width":16,
                  "x":496,
                  "y":96
+                }, 
+                {
+                 "gid":1631,
+                 "height":16,
+                 "id":176,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"spid",
+                         "type":"int",
+                         "value":3
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":48,
+                 "y":96
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -3269,7 +3315,7 @@
          "y":0
         }],
  "nextlayerid":11,
- "nextobjectid":176,
+ "nextobjectid":181,
  "orientation":"orthogonal",
  "renderorder":"left-down",
  "tiledversion":"1.11.2",
