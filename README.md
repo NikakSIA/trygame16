@@ -22,5 +22,7 @@
 - Создать ярлык .ехе файла и запускать из удобного места
 
 ##Скриншоты
+
+
 ![](https://github.com/NikakSIA/trygame16/blob/b9f223ddfc0d7b596930d90c1c3726eb83776eea/screenshot1.png)
 ![](https://github.com/NikakSIA/trygame16/blob/b9f223ddfc0d7b596930d90c1c3726eb83776eea/screenshot2.png)
